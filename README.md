@@ -20,16 +20,10 @@ npm run dev
 
 # TODOs
 
-## Frontend
+- Social media cards
 
-1. Traveler catogory filter (hk_residents / mainland_visitors / other_visitors)
+- Vite project refract
 
-2. Pie chart improve
+- Traveler catogory filter (hk_residents / mainland_visitors / other_visitors)
 
-3. Social media cards
-
-4. Source code link
-
-## Backend
-
-5. Scheduled job to insert newest data every day https://data.gov.hk/tc-data/dataset/hk-immd-set5-statistics-daily-passenger-traffic
+- Scheduled job to insert newest data every day https://data.gov.hk/tc-data/dataset/hk-immd-set5-statistics-daily-passenger-traffic

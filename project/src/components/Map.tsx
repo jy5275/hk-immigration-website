@@ -26,7 +26,7 @@ const controlPointCoordinates: Record<string, [number, number]> = {
   "Lo Wu": [22.5295, 114.1135],
   "Lok Ma Chau Spur Line": [22.5147, 114.0654],
   "Airport": [22.3156, 113.9348],
-  "Shenzhen Bay": [22.4828, 113.9461],
+  "Shenzhen Bay": [22.5038, 113.9448],
   "Hong Kong-Zhuhai-Macao Bridge": [22.3181, 113.9512],
   "Express Rail Link West Kowloon": [22.3042, 114.1649],
   "Heung Yuen Wai": [22.5529, 114.1538],
