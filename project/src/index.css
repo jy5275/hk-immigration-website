@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Customize popup style */
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  padding: 0.5rem;
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Hide attribution prefix */
+.leaflet-control-attribution {
+  font-size: 10px;
+}
