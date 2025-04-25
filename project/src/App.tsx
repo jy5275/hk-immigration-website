@@ -13,7 +13,7 @@ function App() {
         <div className="flex justify-center items-center space-x-4">
           <p>Data source: <a href="https://www.immd.gov.hk/hks/facts/passenger-statistics-menu.html" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">Immigration Department, Hong Kong</a></p>
           <span>|</span>
-          <p>Source code: <a href="https://github.com/jy5275/hk-immigration-data-plot" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">GitHub</a></p>
+          <p>Source code: <a href="https://github.com/jy5275/hk-immigration-website" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">GitHub</a></p>
         </div>
       </footer>
     </div>
