@@ -26,10 +26,11 @@ func GetImmigrationData(w http.ResponseWriter, r *http.Request) {
 		"https://jysalb-1772187126.ap-east-1.elb.amazonaws.com":        true,
 		"http://hk-immigration.jiangyan.click":                         true,
 		"https://hk-immigration.jiangyan.click":                        true,
+		"https://hk-immigration-website.pages.dev":                     true,
 	}
 	origin := r.Header.Get("Origin")
 	if allowedOrigins[origin] {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", origin)
 		w.Header().Set("Access-Control-Allow-Methods", "GET")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	} else if r.Method == http.MethodOptions {
