@@ -21,6 +21,11 @@ func parseInt(s string) int {
 }
 
 func UpdateDB(w http.ResponseWriter, r *http.Request) {
+	if db == nil {
+		http.Error(w, "Database not initialized", http.StatusInternalServerError)
+		return
+	}
+
 	resp, err := http.Get("https://res.data.gov.hk/api/get-download-file?name=https%3A%2F%2Fwww.immd.gov.hk%2Fopendata%2Feng%2Ftransport%2Fimmigration_clearance%2Fstatistics_on_daily_passenger_traffic.csv")
 	if err != nil {
 		log.Fatalf("下载 CSV 文件失败: %v", err)

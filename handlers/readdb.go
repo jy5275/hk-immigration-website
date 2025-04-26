@@ -1,9 +1,13 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type ImmigrationData struct {
@@ -41,6 +45,22 @@ func GetImmigrationData(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusOK)
 		return
+	}
+	if db == nil {
+		var err error
+		log.Print("Cannot connect to MySQL, change to local mode...")
+
+		// For local testing, reopen SQLite for every request
+		db, err = sql.Open("sqlite3", "./scripts/immigration_data.db")
+		if err != nil {
+			log.Fatalf("Cannot connect to SQLite: %v", err)
+			http.Error(w, "Database not initialized", http.StatusInternalServerError)
+			return
+		}
+		defer func() {
+			db.Close()
+			db = nil
+		}()
 	}
 
 	rows, err := db.Query(`SELECT id, date, control_point, direction, hk_residents, mainland_visitors, other_visitors, total FROM immigration`)

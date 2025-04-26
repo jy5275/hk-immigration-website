@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	MYSQL_DSN = "admin:jiangyan@tcp(hk-immigration-db.c5geiw2ayux3.ap-east-1.rds.amazonaws.com:3306)/hk_immigration_db?parseTime=true&timeout=5s"
+	MYSQL_DSN = "admin:jiangyan@tcp(hk-immigration-db.c5geiw2ayux3.ap-east-1.rds.amazonaws.com:3306)/hk_immigration_db?parseTime=true&timeout=3s"
 )
 
 var (
@@ -21,7 +21,11 @@ func init() {
 
 	db, err = sql.Open("mysql", MYSQL_DSN)
 	if err != nil {
-		log.Fatal("Failed to connect to MySQL:", err)
+		log.Print("Failed to connect to MySQL:", err)
+	}
+	if err := db.Ping(); err != nil {
+		log.Print("Cannot reach MySQL:", err)
+		db = nil
 	}
 
 	// defer db.Close()
