@@ -10,8 +10,6 @@ import (
 	"time"
 )
 
-var REMOVED_CONTROL_POINT = map[string]bool{"Hung Hom": true, "Tuen Mun Ferry Terminal": true}
-
 func parseInt(s string) int {
 	n, err := strconv.Atoi(s)
 	if err != nil {
@@ -44,23 +42,20 @@ func UpdateDB(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		if err != nil {
-			log.Printf("第 %d 行读取失败: %v", line+1, err)
-			continue
+			log.Fatalf("第 %d 行读取失败: %v", line+1, err)
 		}
 		line++
 		if line == 1 {
 			continue // 跳过表头
 		}
 		if len(record) < 7 {
-			log.Printf("第 %d 行数据不足，跳过: %v", line, record)
-			continue
+			log.Fatalf("第 %d 行数据不足: %v", line, record)
 		}
 
 		// 解析字段
 		date, err := time.Parse("02-01-2006", record[0])
 		if err != nil {
-			log.Printf("第 %d 行日期格式错误: %v", line, err)
-			continue
+			log.Fatalf("第 %d 行日期格式错误: %v", line, err)
 		}
 		controlPoint := record[1]
 		direction := record[2]
@@ -68,10 +63,6 @@ func UpdateDB(w http.ResponseWriter, r *http.Request) {
 		mainlandVisitors := parseInt(record[4])
 		otherVisitors := parseInt(record[5])
 		total := parseInt(record[6])
-
-		if _, ok := REMOVED_CONTROL_POINT[controlPoint]; ok {
-			continue
-		}
 
 		// 插入数据
 		_, err = db.Exec(`
@@ -86,7 +77,7 @@ func UpdateDB(w http.ResponseWriter, r *http.Request) {
 			`, date, controlPoint, direction, hkResidents, mainlandVisitors, otherVisitors, total)
 
 		if err != nil {
-			log.Printf("第 %d 行插入失败: %v", line, err)
+			log.Fatalf("第 %d 行插入失败: %v", line, err)
 		}
 	}
 
