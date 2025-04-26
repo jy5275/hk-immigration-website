@@ -12,9 +12,7 @@ const (
 	MYSQL_DSN = "admin:jiangyan@tcp(hk-immigration-db.c5geiw2ayux3.ap-east-1.rds.amazonaws.com:3306)/hk_immigration_db?parseTime=true&timeout=3s"
 )
 
-var (
-	db *sql.DB
-)
+var db *sql.DB
 
 func init() {
 	// Initialize the database connection

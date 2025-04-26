@@ -6,7 +6,6 @@ import { fetchImmigrationData } from '../services/databaseService';
 import { ImmigrationData, FilterOptions } from '../types';
 import DataSummary from './DataSummary';
 import Map from './Map';
-import { allControlPoints } from './consts';
 
 const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -18,11 +17,11 @@ const Dashboard: React.FC = () => {
   defaultStartDate.setMonth(defaultStartDate.getMonth() - 6);
 
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
-    direction: 'Arrival',
-    controlPoints: [],
+    direction_id: 0,
+    control_point_ids: [],
     mode: "Separated",
-    travelerCategories: ['hk_residents', 'mainland_visitors', 'other_visitors'],
-    dateRange: {
+    passenger_categories: ['hk_residents', 'mainland_visitors', 'other_visitors'],
+    date_range: {
       startDate: defaultStartDate,
       endDate: defaultEndDate
     }
@@ -34,15 +33,15 @@ const Dashboard: React.FC = () => {
       try {
         const immigrationData = await fetchImmigrationData();
         setData(immigrationData);
-                
+
         setFilterOptions(prev => ({
           ...prev,
-          controlPoints: allControlPoints.slice(0, 1)
+          control_point_ids: [0]
         }));
         
         setFilteredData(applyFilters(immigrationData, {
           ...filterOptions,
-          controlPoints: allControlPoints.slice(0, 1)
+          control_point_ids: [0]
         }));
       } catch (error) {
         console.error('Error loading data:', error);
@@ -56,12 +55,11 @@ const Dashboard: React.FC = () => {
 
   const applyFilters = (data: ImmigrationData[], filters: FilterOptions): ImmigrationData[] => {
     return data.filter(item => {
-      const dateInRange = new Date(item.date) >= filters.dateRange.startDate &&
-                          new Date(item.date) <= filters.dateRange.endDate;
+      const dateInRange = new Date(item.date) >= filters.date_range.startDate &&
+                          new Date(item.date) <= filters.date_range.endDate;
       
-      const directionMatch = filters.direction === item.direction;
-      const controlPointMatch = filters.controlPoints.includes(item.control_point);
-      
+      const directionMatch = filters.direction_id == item.direction_id;
+      const controlPointMatch = filters.control_point_ids.includes(item.control_point_id);
       return dateInRange && directionMatch && controlPointMatch;
     });
   };
@@ -77,15 +75,14 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">          
           <DateRangeSelector 
-            dateRange={filterOptions.dateRange}
-            onDateRangeChange={(dateRange) => handleFilterChange({ dateRange })}
+            dateRange={filterOptions.date_range}
+            onDateRangeChange={(dateRange) => handleFilterChange({ date_range: dateRange })}
           />
           
           <div className="mt-6 flex flex-col md:flex-row gap-6">
             <div className="md:w-[286px]">
               <Filters 
                 filterOptions={filterOptions}
-                allControlPoints={Array.from(allControlPoints)}
                 onFilterChange={handleFilterChange}
               />
             </div>
@@ -99,7 +96,7 @@ const Dashboard: React.FC = () => {
                 ) : (
                   <LineChart 
                     data={filteredData} 
-                    selectedCategories={filterOptions.travelerCategories}
+                    selectedCategories={filterOptions.passenger_categories}
                     separateControlPoints={filterOptions.mode === 'Separated' ? true : false}
                     separateDirections={true}
                   />
@@ -110,7 +107,7 @@ const Dashboard: React.FC = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Map selectedPoints={filterOptions.controlPoints} />
+          <Map selectedPoints={filterOptions.control_point_ids} />
           <DataSummary data={filteredData} />
         </div>
       </div>

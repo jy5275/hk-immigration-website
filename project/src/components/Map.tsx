@@ -1,10 +1,11 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { ControlPointId, decodeControlPoint } from '../types/consts';
 
 interface MapProps {
-  selectedPoints: string[];
+  selectedPoints: ControlPointId[];
 }
 
 // Fix for default marker icons in react-leaflet
@@ -22,27 +23,27 @@ const HK_BOUNDS: L.LatLngBoundsExpression = [
 ];
 
 // Control point coordinates (actual lat/lng)
-const controlPointCoordinates: Record<string, [number, number]> = {
-  "Lo Wu": [22.5295, 114.1135],
-  "Lok Ma Chau Spur Line": [22.5147, 114.0654],
-  "Airport": [22.3156, 113.9348],
-  "Shenzhen Bay": [22.5038, 113.9448],
-  "Hong Kong-Zhuhai-Macao Bridge": [22.3181, 113.9512],
-  "Express Rail Link West Kowloon": [22.3042, 114.1649],
-  "Heung Yuen Wai": [22.5529, 114.1538],
-  "Lok Ma Chau": [22.5095, 114.0740],
-  "Macau Ferry Terminal": [22.2889, 114.1520],
-  "Man Kam To": [22.5371, 114.1295],
-  "China Ferry Terminal": [22.2991, 114.1664],
-  "Kai Tak Cruise Terminal": [22.3060, 114.2135],
-  "Harbour Control": [22.2885, 114.1557],
-  "Sha Tau Kok": [22.5491, 114.2233],
-  "Hung Hom": [22.2994, 114.1750],
-  "Tuen Mun Ferry Terminal": [22.3925, 113.9730]
+const controlPointCoordinates: Record<number, [number, number]> = {
+  0: [22.5295, 114.1135],
+  1: [22.5147, 114.0654],
+  2: [22.3156, 113.9348],
+  3: [22.5038, 113.9448],
+  4: [22.3181, 113.9512],
+  5: [22.3042, 114.1649],
+  6: [22.5529, 114.1538],
+  7: [22.5095, 114.0740],
+  8: [22.2889, 114.1520],
+  9: [22.5371, 114.1295],
+  10: [22.2991, 114.1664],
+  11: [22.3060, 114.2135],
+  12: [22.2885, 114.1557],
+  13: [22.5491, 114.2233],
+  14: [22.3033, 114.1820],
+  15: [22.3611, 113.9479]
 };
 
 // Component to handle bounds update and restrictions
-const BoundsUpdater: React.FC<{ points: string[] }> = ({ points }) => {
+const BoundsUpdater: React.FC<{ points: number[] }> = ({ points }) => {
   const map = useMap();
 
   useEffect(() => {
@@ -98,7 +99,7 @@ const Map: React.FC<MapProps> = ({ selectedPoints }) => {
               position={controlPointCoordinates[point]}
             >
               <Popup>
-                <span className="font-medium">{point}</span>
+                <span className="font-medium">{decodeControlPoint(point)}</span>
               </Popup>
             </Marker>
           ))}

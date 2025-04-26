@@ -14,6 +14,7 @@ import { Line } from 'react-chartjs-2';
 import 'chartjs-adapter-date-fns';
 import { ImmigrationData } from '../types';
 import { aggregateDataByDirection } from '../utils/dataUtils';
+import { decodeControlPoint } from '../types/consts';
 
 ChartJS.register(
   CategoryScale,
@@ -69,16 +70,18 @@ const LineChart: React.FC<LineChartProps> = ({ data, selectedCategories, separat
     const showControlPointTotals = true; // selectedCategories.length === 0; // TODO: Implement logic to determine if control points should be shown
 
     if (showControlPointTotals) {
-      // Group data by control point
+      const controlPointIDs = Array.from(new Set(data.map(item => item.control_point_id)));
       if (!separateControlPoints) {
-        const controlPoints = Array.from(new Set(data.map(item => item.control_point)));
+        // Get sum of all control points
         let date2sum = new Map<string, number>();
-        controlPoints.forEach((controlPoint, index) => {
-          const controlPointData = data.filter(item => item.control_point === controlPoint);
+        controlPointIDs.forEach((controlPointID, index) => {
+          const controlPointData = data.filter(item => item.control_point_id === controlPointID);
           const { arrivalData: cpArrival, departureData: cpDeparture } = aggregateDataByDirection(controlPointData);
-          const direction = data[0]?.direction;
+          const directionID = data[0]?.direction_id;
           dates.forEach(date => {
-            const count = direction === 'Arrival' ? (cpArrival[date] === undefined ? 0 : cpArrival[date].total || 0) : (cpDeparture[date] === undefined ? 0 : cpDeparture[date].total || 0);
+            const count = directionID === 0 
+              ? (cpArrival[date] === undefined ? 0 : cpArrival[date].total || 0) 
+              : (cpDeparture[date] === undefined ? 0 : cpDeparture[date].total || 0);
             let prev = date2sum.get(date) || 0;
             date2sum.set(date, prev + count);
           });
@@ -94,17 +97,15 @@ const LineChart: React.FC<LineChartProps> = ({ data, selectedCategories, separat
           borderWidth: 2,
         });
       } else {
-        const controlPoints = Array.from(new Set(data.map(item => item.control_point)));
-        controlPoints.forEach((controlPoint, index) => {
-          const controlPointData = data.filter(item => item.control_point === controlPoint);
+        controlPointIDs.forEach((controlPointID, index) => {
+          const controlPointData = data.filter(item => item.control_point_id === controlPointID);
           const { arrivalData: cpArrival, departureData: cpDeparture } = aggregateDataByDirection(controlPointData);
           datasets.push({
-            label: controlPoint,
+            label: decodeControlPoint(controlPointID),
             data: dates.map(date => {
-              const direction = data[0]?.direction;
-              return direction === 'Arrival' 
-                ? cpArrival[date]?.total || 0 
-                : cpDeparture[date]?.total || 0;
+              const directionID = data[0]?.direction_id;
+              return directionID === 0 
+                ? cpArrival[date]?.total || 0 : cpDeparture[date]?.total || 0;
             }),
             borderColor: Object.values(categoryColors)[index % Object.keys(categoryColors).length],
             backgroundColor: `${Object.values(categoryColors)[index % Object.keys(categoryColors).length]}33`,
@@ -115,26 +116,27 @@ const LineChart: React.FC<LineChartProps> = ({ data, selectedCategories, separat
           });
         });
       }
-    } else {
-      // Show selected traveler categories
-      selectedCategories.forEach(category => {
-        datasets.push({
-          label: categoryLabels[category],
-          data: dates.map(date => {
-            const direction = data[0]?.direction;
-            return direction === 'Arrival' 
-              ? arrivalData[date]?.[category] || 0 
-              : departureData[date]?.[category] || 0;
-          }),
-          borderColor: categoryColors[category],
-          backgroundColor: `${categoryColors[category]}33`,
-          tension: 0.3,
-          pointRadius: 1,
-          pointHoverRadius: 5,
-          borderWidth: 2,
-        });
-      });
     }
+    //  else {
+    //   // Show selected traveler categories
+    //   selectedCategories.forEach(category => {
+    //     datasets.push({
+    //       label: categoryLabels[category],
+    //       data: dates.map(date => {
+    //         const directionID = data[0]?.direction_id;
+    //         return directionID === 0 
+    //           ? arrivalData[date]?.[category] || 0 
+    //           : departureData[date]?.[category] || 0;
+    //       }),
+    //       borderColor: categoryColors[category],
+    //       backgroundColor: `${categoryColors[category]}33`,
+    //       tension: 0.3,
+    //       pointRadius: 1,
+    //       pointHoverRadius: 5,
+    //       borderWidth: 2,
+    //     });
+    //   });
+    // }
 
     setChartData({
       labels: dates,

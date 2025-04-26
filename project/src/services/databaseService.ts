@@ -1,4 +1,5 @@
 import { ImmigrationData } from '../types';
+import { encodeControlPoint, encodeDirection } from '../types/consts';
 
 // Mock data - in a real app, this would be replaced with actual database queries
 export const fetchImmigrationData = async (): Promise<ImmigrationData[]> => {
@@ -87,8 +88,8 @@ function getMockData(): ImmigrationData[] {
         data.push({
           id: id++,
           date: dateStr,
-          control_point: controlPoint,
-          direction,
+          control_point_id: encodeControlPoint(controlPoint),
+          direction_id: encodeDirection(direction),
           hk_residents: hkResidents,
           mainland_visitors: mainlandVisitors,
           other_visitors: otherVisitors,

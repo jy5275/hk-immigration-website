@@ -29,7 +29,7 @@ export const aggregateDataByDirection = (data: ImmigrationData[]) => {
 
   data.forEach(item => {
     dates.add(item.date);
-    const targetData = item.direction === 'Arrival' ? arrivalData : departureData;
+    const targetData = item.direction_id === 0 ? arrivalData : departureData;
 
     if (!targetData[item.date]) {
       targetData[item.date] = {

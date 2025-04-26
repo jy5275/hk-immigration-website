@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"encoding/csv"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -88,5 +87,5 @@ func main() {
 		}
 	}
 
-	fmt.Println("Update DB endpoint hit")
+	log.Println("Update DB endpoint hit")
 }

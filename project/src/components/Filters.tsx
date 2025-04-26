@@ -1,59 +1,57 @@
 import React from 'react';
 import { FilterOptions } from '../types';
+import { allControlPoints, DirectionId, encodeControlPoint, encodeDirection } from '../types/consts';
 
 interface FiltersProps {
   filterOptions: FilterOptions;
-  allControlPoints: string[];
   onFilterChange: (newFilters: Partial<FilterOptions>) => void;
 }
 
 const Filters: React.FC<FiltersProps> = ({ 
   filterOptions, 
-  allControlPoints,
   onFilterChange 
 }) => {
-  const handleDirectionChange = (direction: string) => {
+  const handleDirectionChange = (direction_id: DirectionId) => {
     // Single select for direction
-    onFilterChange({ direction: direction });
+    onFilterChange({ direction_id: direction_id });
   };
 
   const handleModeChange = (mode: string) => {
     onFilterChange({ mode: mode });
   };
 
-  const handleControlPointChange = (controlPoint: string) => {
-    const newControlPoints = filterOptions.controlPoints.includes(controlPoint)
-      ? filterOptions.controlPoints.filter(cp => cp !== controlPoint)
-      : [...filterOptions.controlPoints, controlPoint];
-    
+  const handleControlPointChange = (controlPointID: number) => {
+    const newControlPointIDs = filterOptions.control_point_ids.includes(controlPointID)
+      ? filterOptions.control_point_ids.filter(cp => cp !== controlPointID)
+      : [...filterOptions.control_point_ids, controlPointID];
     onFilterChange({ 
-      controlPoints: newControlPoints,
-      travelerCategories: [] 
+      control_point_ids: newControlPointIDs,
+      passenger_categories: [] 
     });
   };
 
   const handleSelectAllControlPoints = () => {
     // If all points are already selected, deselect all
-    const allSelected = allControlPoints.length === filterOptions.controlPoints.length;
+    const allSelected = allControlPoints.length === filterOptions.control_point_ids.length;
     onFilterChange({ 
-      controlPoints: allSelected ? [] : [...allControlPoints],
-      travelerCategories: [] 
+      control_point_ids: allSelected ? [] : Array.from({ length: allControlPoints.length }, (_, i) => i),
+      passenger_categories: [] 
     });
   };
 
-  const handleTravelerCategoryChange = (category: string) => {
-    const newCategories = filterOptions.travelerCategories.includes(category)
-      ? filterOptions.travelerCategories.filter(c => c !== category)
-      : [...filterOptions.travelerCategories, category];
+  // const handleTravelerCategoryChange = (category: string) => {
+  //   const newCategories = filterOptions.passenger_categories.includes(category)
+  //     ? filterOptions.passenger_categories.filter(c => c !== category)
+  //     : [...filterOptions.passenger_categories, category];
     
-    if (newCategories.length > 0) {
-      // When selecting traveler categories, clear control points
-      onFilterChange({ 
-        travelerCategories: newCategories,
-        controlPoints: [] 
-      });
-    }
-  };
+  //   if (newCategories.length > 0) {
+  //     // When selecting traveler categories, clear control points
+  //     onFilterChange({ 
+  //       passenger_categories: newCategories,
+  //       controlPoints: [] 
+  //     });
+  //   }
+  // };
 
   return (
     <div className="space-y-4">
@@ -63,8 +61,8 @@ const Filters: React.FC<FiltersProps> = ({
             <label key={direction} className="flex items-center space-x-2 cursor-pointer">
               <input
                 type="radio"
-                checked={filterOptions.direction === direction}
-                onChange={() => handleDirectionChange(direction)}
+                checked={filterOptions.direction_id === encodeDirection(direction)}
+                onChange={() => handleDirectionChange(encodeDirection(direction))}
                 name="direction"
                 className="text-blue-600 focus:ring-blue-500 h-4 w-4"
               />
@@ -97,12 +95,12 @@ const Filters: React.FC<FiltersProps> = ({
             <label className="flex items-center space-x-2 cursor-pointer border-b border-gray-200 pb-2 mb-1">
               <input
                 type="checkbox"
-                checked={allControlPoints.length === filterOptions.controlPoints.length}
+                checked={allControlPoints.length === filterOptions.control_point_ids.length}
                 onChange={handleSelectAllControlPoints}
-                disabled={filterOptions.travelerCategories.length > 100}
+                disabled={filterOptions.passenger_categories.length > 100}
                 className="rounded text-blue-600 focus:ring-blue-500 h-4 w-4 disabled:opacity-50"
               />
-              <span className={`text-sm font-medium ${filterOptions.travelerCategories.length > 100 ? 'text-gray-400' : 'text-gray-700'}`}>
+              <span className={`text-sm font-medium ${filterOptions.passenger_categories.length > 100 ? 'text-gray-400' : 'text-gray-700'}`}>
                 Select All
               </span>
             </label>
@@ -110,9 +108,9 @@ const Filters: React.FC<FiltersProps> = ({
               <label key={point} className="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={filterOptions.controlPoints.includes(point)}
-                  onChange={() => handleControlPointChange(point)}
-                  disabled={filterOptions.travelerCategories.length > 100}
+                  checked={filterOptions.control_point_ids.includes(encodeControlPoint(point))}
+                  onChange={() => handleControlPointChange(encodeControlPoint(point))}
+                  disabled={filterOptions.passenger_categories.length > 100}
                   className="rounded text-blue-600 focus:ring-blue-500 h-4 w-4 disabled:opacity-50"
                 />
                 <span className={`text-sm 'text-gray-700'}`}>

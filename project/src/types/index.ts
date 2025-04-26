@@ -1,8 +1,10 @@
+import type { ControlPointId, DirectionId } from "./consts";
+
 export interface ImmigrationData {
   id: number;
   date: string;
-  control_point: string;
-  direction: string;
+  control_point_id: ControlPointId;
+  direction_id: DirectionId;
   hk_residents: number;
   mainland_visitors: number;
   other_visitors: number;
@@ -16,10 +18,10 @@ export interface DateRange {
 
 export interface FilterOptions {
   mode: string;
-  direction: string;
-  controlPoints: string[];
-  travelerCategories: string[];
-  dateRange: DateRange;
+  direction_id: DirectionId;
+  control_point_ids: ControlPointId[];
+  passenger_categories: string[];
+  date_range: DateRange;
 }
 
 export interface AggregatedData {

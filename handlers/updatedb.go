@@ -79,7 +79,7 @@ func UpdateDB(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	fmt.Println("Update DB successfully")
+	log.Println("Update DB successfully")
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintln(w, "Update DB successfully")
 }

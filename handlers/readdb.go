@@ -3,20 +3,52 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 )
 
-type ImmigrationData struct {
+var controlPointMap = map[string]int{
+	"Lo Wu":                          0,
+	"Lok Ma Chau Spur Line":          1,
+	"Airport":                        2,
+	"Shenzhen Bay":                   3,
+	"Hong Kong-Zhuhai-Macao Bridge":  4,
+	"Express Rail Link West Kowloon": 5,
+	"Heung Yuen Wai":                 6,
+	"Lok Ma Chau":                    7,
+	"Macau Ferry Terminal":           8,
+	"Man Kam To":                     9,
+	"China Ferry Terminal":           10,
+	"Kai Tak Cruise Terminal":        11,
+	"Harbour Control":                12,
+	"Sha Tau Kok":                    13,
+	"Hung Hom":                       14,
+	"Tuen Mun Ferry Terminal":        15,
+}
+
+type ImmigrationDataCompressed struct {
 	ID               int    `json:"id"`
 	Date             string `json:"date"`
-	ControlPoint     string `json:"control_point"`
-	Direction        string `json:"direction"`
+	ControlPointID   int    `json:"control_point_id"` // encoded
+	DirectionID      int    `json:"direction_id"`     // encoded
 	HKResidents      int    `json:"hk_residents"`
 	MainlandVisitors int    `json:"mainland_visitors"`
 	OtherVisitors    int    `json:"other_visitors"`
 	Total            int    `json:"total"`
+}
+
+func encodeControlPoint(name string) int {
+	if id, ok := controlPointMap[name]; ok {
+		return id
+	}
+	return -1 // fallback for unknown
+}
+
+func encodeDirection(dir string) int {
+	if dir == "Arrival" {
+		return 0
+	}
+	return 1 // assume "Departure"
 }
 
 func GetImmigrationData(w http.ResponseWriter, r *http.Request) {
@@ -68,18 +100,29 @@ func GetImmigrationData(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
-	var data []ImmigrationData
+	var data []ImmigrationDataCompressed
 	for rows.Next() {
-		var d ImmigrationData
-		err = rows.Scan(&d.ID, &d.Date, &d.ControlPoint, &d.Direction, &d.HKResidents, &d.MainlandVisitors, &d.OtherVisitors, &d.Total)
+		var id, hk, mainland, other, total int
+		var date, cp, dir string
+		err = rows.Scan(&id, &date, &cp, &dir, &hk, &mainland, &other, &total)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		data = append(data, d)
+		compressed := ImmigrationDataCompressed{
+			ID:               id,
+			Date:             date,
+			ControlPointID:   encodeControlPoint(cp),
+			DirectionID:      encodeDirection(dir),
+			HKResidents:      hk,
+			MainlandVisitors: mainland,
+			OtherVisitors:    other,
+			Total:            total,
+		}
+		data = append(data, compressed)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(data)
-	fmt.Println("Data sent to client:", data[:10])
+	log.Printf("%d records sent to client.", len(data))
 }

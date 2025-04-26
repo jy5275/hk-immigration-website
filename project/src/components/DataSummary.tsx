@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 import { ImmigrationData } from '../types';
-import { BarChart2, ArrowLeftRight, Users } from 'lucide-react';
+import { BarChart2, Users } from 'lucide-react';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { ControlPointId, decodeControlPoint } from '../types/consts';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -29,18 +30,18 @@ const DataSummary: React.FC<DataSummaryProps> = ({ data }) => {
     const totalMainlandVisitors = data.reduce((sum, item) => sum + item.mainland_visitors, 0);
     const totalOtherVisitors = data.reduce((sum, item) => sum + item.other_visitors, 0);
 
-    const controlPointCounts = data.reduce((acc, item) => {
-      acc[item.control_point] = (acc[item.control_point] || 0) + item.total;
+    const controlPointID2Counts = data.reduce((acc, item) => {
+      acc[item.control_point_id] = (acc[item.control_point_id] || 0) + item.total;
       return acc;
-    }, {} as Record<string, number>);
+    }, {} as Record<ControlPointId, number>);
 
-    const topControlPoint = Object.entries(controlPointCounts).sort((a, b) => b[1] - a[1])[0] || ['N/A', 0];
-
+    const topControlPointID2Count = Object.entries(controlPointID2Counts).sort((a, b) => b[1] - a[1])[0] || ['-1', 0];
+    
     return {
       totalTravelers,
       totalFlow: totalTravelers,
-      topControlPoint: topControlPoint[0],
-      topControlPointCount: topControlPoint[1],
+      topControlPoint: decodeControlPoint(parseInt(topControlPointID2Count[0], 10)),
+      topControlPointCount: topControlPointID2Count[1],
       hkResidentsCount: totalHkResidents,
       mainlandVisitorsCount: totalMainlandVisitors,
       otherVisitorsCount: totalOtherVisitors,
