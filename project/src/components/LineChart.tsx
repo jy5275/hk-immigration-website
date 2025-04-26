@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useTransition } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -15,6 +15,7 @@ import 'chartjs-adapter-date-fns';
 import { ImmigrationData } from '../types';
 import { aggregateDataByDirection } from '../utils/dataUtils';
 import { decodeControlPoint } from '../types/consts';
+import { useTranslation } from 'react-i18next';
 
 ChartJS.register(
   CategoryScale,
@@ -53,6 +54,7 @@ const LineChart: React.FC<LineChartProps> = ({ data, selectedCategories, separat
     labels: [] as string[],
     datasets: [] as any[],
   });
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (data.length === 0) {
@@ -87,7 +89,7 @@ const LineChart: React.FC<LineChartProps> = ({ data, selectedCategories, separat
           });
         });
         datasets.push({
-          label: "all",
+          label: t('all'),
           data: dates.map(date => { return date2sum.get(date); }),
           borderColor: Object.values(categoryColors)[0],
           backgroundColor: `${Object.values(categoryColors)[0]}33`,
@@ -101,7 +103,7 @@ const LineChart: React.FC<LineChartProps> = ({ data, selectedCategories, separat
           const controlPointData = data.filter(item => item.control_point_id === controlPointID);
           const { arrivalData: cpArrival, departureData: cpDeparture } = aggregateDataByDirection(controlPointData);
           datasets.push({
-            label: decodeControlPoint(controlPointID),
+            label: t(`controlPointNames.${decodeControlPoint(controlPointID)}`),
             data: dates.map(date => {
               const directionID = data[0]?.direction_id;
               return directionID === 0 
@@ -164,14 +166,14 @@ const LineChart: React.FC<LineChartProps> = ({ data, selectedCategories, separat
         },
         title: {
           display: true,
-          text: 'Date',
+          text: t('date'),
         },
       },
       y: {
         beginAtZero: true,
         title: {
           display: true,
-          text: 'Number of Passengers',
+          text: t('numberOfPassengers'),
         },
         ticks: {
           callback: function(value: any) {

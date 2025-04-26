@@ -15,26 +15,25 @@ export const allControlPoints = [
 	"Sha Tau Kok",
 	"Hung Hom",
 	"Tuen Mun Ferry Terminal",
-  ] as const;
-  
-  export const directionList = ["Arrival", "Departure"] as const;
-  
-  export type ControlPointId = number; // 0~15
-  export type DirectionId = 0 | 1;
-  
-  export function encodeControlPoint(name: string): ControlPointId {
-	return allControlPoints.indexOf(name as any);
-  }
-  
-  export function decodeControlPoint(id: ControlPointId): string {
-	return allControlPoints[id];
-  }
-  
-  export function encodeDirection(dir: string): DirectionId {
-	return dir === "Arrival" ? 0 : 1;
-  }
-  
-  export function decodeDirection(id: DirectionId): string {
+] as const;
+
+export const directionList = ["Arrival", "Departure"] as const;
+
+export type ControlPointId = number; // 0~15
+export type DirectionId = 0 | 1;
+
+export function encodeControlPoint(name: string): ControlPointId {
+  return allControlPoints.indexOf(name as any);
+}
+
+export function decodeControlPoint(id: ControlPointId): string {
+  return allControlPoints[id];
+}
+
+export function encodeDirection(dir: string): DirectionId {
+	return dir === "arrival" ? 0 : 1;
+}
+
+export function decodeDirection(id: DirectionId): string {
 	return directionList[id];
-  }
-  
+}

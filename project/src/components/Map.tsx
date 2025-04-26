@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { ControlPointId, decodeControlPoint } from '../types/consts';
+import { useTranslation } from 'react-i18next';
 
 interface MapProps {
   selectedPoints: ControlPointId[];
@@ -73,11 +74,12 @@ const BoundsUpdater: React.FC<{ points: number[] }> = ({ points }) => {
 };
 
 const Map: React.FC<MapProps> = ({ selectedPoints }) => {
+  const { t } = useTranslation();
   const center: [number, number] = [22.3193, 114.1694];
   
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-      <h2 className="text-lg font-medium text-gray-800 mb-4">Control Points Map</h2>
+      <h2 className="text-lg font-medium text-gray-800 mb-4">{t('controlPointsMap')}</h2>
       <div className="h-[300px] w-full rounded-lg overflow-hidden">
         <MapContainer 
           center={center} 

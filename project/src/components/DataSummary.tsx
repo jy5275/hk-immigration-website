@@ -4,6 +4,7 @@ import { BarChart2, Users } from 'lucide-react';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { ControlPointId, decodeControlPoint } from '../types/consts';
+import { useTranslation } from 'react-i18next';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -12,6 +13,7 @@ interface DataSummaryProps {
 }
 
 const DataSummary: React.FC<DataSummaryProps> = ({ data }) => {
+  const { t } = useTranslation();
   const summary = useMemo(() => {
     if (data.length === 0) {
       return {
@@ -49,7 +51,7 @@ const DataSummary: React.FC<DataSummaryProps> = ({ data }) => {
   }, [data]);
 
   const pieChartData = {
-    labels: ['HK Residents', 'Mainland Visitors', 'Other Visitors'],
+    labels: [t('hkResidents'), t('mainlandVisitors'), t('otherVisitors')],
     datasets: [
       {
         data: [
@@ -108,7 +110,7 @@ const DataSummary: React.FC<DataSummaryProps> = ({ data }) => {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-      <h2 className="text-lg font-medium text-gray-800 mb-4">Data Summary</h2>
+      <h2 className="text-lg font-medium text-gray-800 mb-4">{t('dataSummary')}</h2>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
@@ -117,7 +119,7 @@ const DataSummary: React.FC<DataSummaryProps> = ({ data }) => {
               <Users className="h-5 w-5 text-blue-700" />
             </div>
             <div>
-              <p className="text-sm text-blue-700 font-medium">Total Passengers</p>
+              <p className="text-sm text-blue-700 font-medium">{t('totalPassengers')}</p>
               <p className="text-xl font-semibold text-blue-900">{formatNumber(summary.totalTravelers)}</p>
             </div>
           </div>
@@ -129,7 +131,7 @@ const DataSummary: React.FC<DataSummaryProps> = ({ data }) => {
               <BarChart2 className="h-5 w-5 text-emerald-700" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm text-emerald-700 font-medium">Top Control Point</p>
+              <p className="text-sm text-emerald-700 font-medium">{t('topControlPoint')}</p>
               <p className="text-l leading-tight font-semibold text-emerald-900" title={summary.topControlPoint}>
                 {summary.topControlPoint}
               </p>
@@ -139,7 +141,7 @@ const DataSummary: React.FC<DataSummaryProps> = ({ data }) => {
       </div>
 
       <div>
-        <h3 className="text-sm font-medium text-gray-700 mb-2">Passenger Categories</h3>
+        <h3 className="text-sm font-medium text-gray-700 mb-2">{t('passengerCategories')}</h3>
         <div className="h-[calc(100%-2rem)]">
           <Pie data={pieChartData} options={pieChartOptions} />
         </div>

@@ -6,6 +6,7 @@ import { fetchImmigrationData } from '../services/databaseService';
 import { ImmigrationData, FilterOptions } from '../types';
 import DataSummary from './DataSummary';
 import Map from './Map';
+import { useTranslation } from 'react-i18next';
 
 const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -19,7 +20,7 @@ const Dashboard: React.FC = () => {
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
     direction_id: 0,
     control_point_ids: [],
-    mode: "Separated",
+    mode: "separated",
     passenger_categories: ['hk_residents', 'mainland_visitors', 'other_visitors'],
     date_range: {
       startDate: defaultStartDate,
@@ -70,6 +71,8 @@ const Dashboard: React.FC = () => {
     setFilteredData(applyFilters(data, updatedFilters));
   };
 
+  const { i18n } = useTranslation();
+
   return (
     <div className="container mx-auto">
       <div className="grid grid-cols-1 gap-6">
@@ -80,7 +83,7 @@ const Dashboard: React.FC = () => {
           />
           
           <div className="mt-6 flex flex-col md:flex-row gap-6">
-            <div className="md:w-[286px]">
+            <div className="md:w-auto min-w-[240px] max-w-sm">
               <Filters 
                 filterOptions={filterOptions}
                 onFilterChange={handleFilterChange}
@@ -95,9 +98,10 @@ const Dashboard: React.FC = () => {
                   </div>
                 ) : (
                   <LineChart 
+                    key={i18n.language}
                     data={filteredData} 
                     selectedCategories={filterOptions.passenger_categories}
-                    separateControlPoints={filterOptions.mode === 'Separated' ? true : false}
+                    separateControlPoints={filterOptions.mode === 'separated' ? true : false}
                     separateDirections={true}
                   />
                 )}
