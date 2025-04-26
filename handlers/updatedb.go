@@ -85,11 +85,15 @@ func UpdateDB(w http.ResponseWriter, r *http.Request) {
 }
 
 func CheckHealth(w http.ResponseWriter, r *http.Request) {
-	if err := db.Ping(); err != nil {
-		log.Fatal("Cannot reach MySQL:", err)
+	if db == nil {
+		// local testing
+		log.Println("Database is not initialized")
+	} else {
+		if err := db.Ping(); err != nil {
+			log.Fatal("Cannot reach MySQL:", err)
+		}
 	}
 
-	log.Println("Connected to MySQL successfully")
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	response := map[string]string{"status": "healthy"}
