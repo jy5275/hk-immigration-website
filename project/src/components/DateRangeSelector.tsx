@@ -12,7 +12,7 @@ const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
   onDateRangeChange 
 }) => {
   const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newStartDate = e.target.value ? new Date(e.target.value) : new Date('2021-01-01');
+    const newStartDate = e.target.value ? new Date(e.target.value) : new Date('2020-01-24');
     onDateRangeChange({
       startDate: newStartDate,
       endDate: dateRange.endDate
@@ -59,7 +59,7 @@ const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
         startDate.setMonth(startDate.getMonth() - 6);
         break;
       case 'all':
-        startDate = new Date('2021-01-01');
+        startDate = new Date('2020-01-24');
         break;
       case '1y':
       default:
@@ -87,7 +87,7 @@ const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
             id="start-date"
             type="date"
             value={formatDate(dateRange.startDate)}
-            min="2021-01-01"
+            min="2020-01-24"
             max={formatDate(dateRange.endDate)}
             onChange={handleStartDateChange}
             className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"

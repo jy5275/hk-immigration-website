@@ -5,9 +5,10 @@ export const fetchImmigrationData = async (): Promise<ImmigrationData[]> => {
   try {
     // In a production app, you would use sql.js-httpvfs or better-sqlite3 to query the database
     // For this example, we're using mock data
-    const response = await fetch('https://hk-immigration.jiangyan.click/api/immigration-data');
+    const response = await fetch('http://localhost:8080/api/immigration-data');
     
     if (!response.ok) {
+      console.error("jyjyjy", response.statusText)
       throw new Error('Failed to fetch immigration data');
     }
     

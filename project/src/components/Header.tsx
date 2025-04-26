@@ -10,7 +10,7 @@ const Header: React.FC = () => {
           <h1 className="text-xl font-semibold text-gray-800">Hong Kong Immigration Dashboard</h1>
         </div>
         <div className="text-sm text-gray-600">
-          <span>2021 - {new Date().getFullYear()}</span>
+          <span>2020 - {new Date().getFullYear()}</span>
         </div>
       </div>
     </header>

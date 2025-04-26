@@ -36,7 +36,9 @@ const controlPointCoordinates: Record<string, [number, number]> = {
   "China Ferry Terminal": [22.2991, 114.1664],
   "Kai Tak Cruise Terminal": [22.3060, 114.2135],
   "Harbour Control": [22.2885, 114.1557],
-  "Sha Tau Kok": [22.5491, 114.2233]
+  "Sha Tau Kok": [22.5491, 114.2233],
+  "Hung Hom": [22.2994, 114.1750],
+  "Tuen Mun Ferry Terminal": [22.3925, 113.9730]
 };
 
 // Component to handle bounds update and restrictions
