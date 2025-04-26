@@ -33,12 +33,18 @@ const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
     { label: 'Last 60 Days', value: '60d' },
     { label: 'Last 90 Days', value: '90d' },
     { label: 'Last 6 Months', value: '6m' },
-    { label: 'Last Year', value: '1y' },
+    { label: 'Last 12 Months', value: '1y' },
+    { label: 'Year to Date', value: 'ytd' },
+    { label: '2020', value: '2020' },
+    { label: '2021', value: '2021' },
+    { label: '2022', value: '2022' },
+    { label: '2023', value: '2023' },
+    { label: '2024', value: '2024' },
     { label: 'All Time', value: 'all' },
   ];
 
   const handleQuickRangeSelect = (range: string) => {
-    const endDate = new Date();
+    let endDate = new Date();
     let startDate: Date;
     
     switch (range) {
@@ -57,6 +63,30 @@ const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
       case '6m':
         startDate = new Date();
         startDate.setMonth(startDate.getMonth() - 6);
+        break;
+      case 'ytd':
+        startDate = new Date();
+        startDate = new Date(startDate.getFullYear(), 0, 1);
+        break;
+      case '2020':
+        startDate = new Date("2020-01-24");
+        endDate = new Date("2020-12-31");
+        break;
+      case '2021':
+        startDate = new Date("2021-01-01");
+        endDate = new Date("2021-12-31");
+        break;
+      case '2022':
+        startDate = new Date("2022-01-01");
+        endDate = new Date("2022-12-31");
+        break;
+      case '2023':
+        startDate = new Date("2023-01-01");
+        endDate = new Date("2023-12-31");
+        break;
+      case '2024':
+        startDate = new Date("2024-01-01");
+        endDate = new Date("2024-12-31");
         break;
       case 'all':
         startDate = new Date('2020-01-24');

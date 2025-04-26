@@ -10,6 +10,7 @@ function App() {
         <Dashboard />
       </main>
       <footer className="bg-white py-4 px-6 border-t border-gray-200 text-sm text-gray-600">
+        <div className="flex justify-center items-center space-x-4">Statistics on Daily Passenger Traffic starting from 24 January 2020</div>
         <div className="flex justify-center items-center space-x-4">
           <p>Data source: <a href="https://www.immd.gov.hk/hks/facts/passenger-statistics-menu.html" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">Immigration Department, Hong Kong</a></p>
           <span>|</span>

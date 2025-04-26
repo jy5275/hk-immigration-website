@@ -56,7 +56,7 @@ const Filters: React.FC<FiltersProps> = ({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       <div className="space-y-2">
         <h3 className="font-medium text-gray-700">Direction</h3>
         <div className="flex space-x-6">{['Arrival', 'Departure'].map(direction => (
@@ -91,10 +91,10 @@ const Filters: React.FC<FiltersProps> = ({
       </div>
 
       <div className="flex-grow flex flex-col min-h-0">
-        <h3 className="font-medium text-gray-700 mb-3">Control Points</h3>
+        <h3 className="font-medium text-gray-700 mb-2">Control Points</h3>
         <div className="flex-grow overflow-y-auto pr-2 border rounded-lg bg-gray-50">
-          <div className="p-3 space-y-2">
-            <label className="flex items-center space-x-2 cursor-pointer border-b border-gray-200 pb-2 mb-2">
+          <div className="p-3 space-y-1.5">
+            <label className="flex items-center space-x-2 cursor-pointer border-b border-gray-200 pb-2 mb-1">
               <input
                 type="checkbox"
                 checked={allControlPoints.length === filterOptions.controlPoints.length}

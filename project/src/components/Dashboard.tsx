@@ -84,7 +84,7 @@ const Dashboard: React.FC = () => {
           />
           
           <div className="mt-6 flex flex-col md:flex-row gap-6">
-            <div className="md:w-1/4">
+            <div className="md:w-[286px]">
               <Filters 
                 filterOptions={filterOptions}
                 allControlPoints={Array.from(new Set(data.map(item => item.control_point)))}
@@ -92,8 +92,8 @@ const Dashboard: React.FC = () => {
               />
             </div>
             
-            <div className="md:w-3/4">
-              <div className="h-[600px] w-full">
+            <div className="md:flex-1">
+              <div className="h-[650px] w-full">
                 {loading ? (
                   <div className="h-full flex items-center justify-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
