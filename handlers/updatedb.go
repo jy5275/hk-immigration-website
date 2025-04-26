@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -46,55 +47,51 @@ func UpdateDB(w http.ResponseWriter, r *http.Request) {
 		}
 		line++
 		if line == 1 {
-			continue // 跳过表头
+			continue
 		}
 		if len(record) < 7 {
 			log.Fatalf("第 %d 行数据不足: %v", line, record)
 		}
 
-		// 解析字段
 		date, err := time.Parse("02-01-2006", record[0])
 		if err != nil {
 			log.Fatalf("第 %d 行日期格式错误: %v", line, err)
 		}
-		controlPoint := record[1]
-		direction := record[2]
-		hkResidents := parseInt(record[3])
-		mainlandVisitors := parseInt(record[4])
-		otherVisitors := parseInt(record[5])
-		total := parseInt(record[6])
+		controlPoint, direction := record[1], record[2]
+		hkResidents, mainlandVisitors, otherVisitors, total :=
+			parseInt(record[3]), parseInt(record[4]), parseInt(record[5]), parseInt(record[6])
 
-		// 插入数据
-		_, err = db.Exec(`
-				INSERT INTO immigration 
-					(date, control_point, direction, hk_residents, mainland_visitors, other_visitors, total)
-				VALUES (?, ?, ?, ?, ?, ?, ?)
-				ON DUPLICATE KEY UPDATE 
-					hk_residents = VALUES(hk_residents),
-					mainland_visitors = VALUES(mainland_visitors),
-					other_visitors = VALUES(other_visitors),
-					total = VALUES(total)
-			`, date, controlPoint, direction, hkResidents, mainlandVisitors, otherVisitors, total)
-
+		result, err := db.Exec(`
+			INSERT IGNORE INTO immigration 
+				(date, control_point, direction, hk_residents, mainland_visitors, other_visitors, total)
+			VALUES (?, ?, ?, ?, ?, ?, ?)
+		`, date, controlPoint, direction, hkResidents, mainlandVisitors, otherVisitors, total)
 		if err != nil {
 			log.Fatalf("第 %d 行插入失败: %v", line, err)
 		}
+		rowsAffected, err := result.RowsAffected()
+		if err != nil {
+			log.Fatalf("第 %d 行无法获取插入结果: %v", line, err)
+		}
+
+		if rowsAffected != 0 {
+			log.Printf("New record inserted: line=%d, date=%s, control_point=%s, dir=%s, ", line, record[0], controlPoint, direction)
+		}
 	}
 
-	fmt.Println("Update DB endpoint hit")
+	fmt.Println("Update DB successfully")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintln(w, "Update DB endpoint hit")
+	fmt.Fprintln(w, "Update DB successfully")
 }
 
-func ConnectDB(w http.ResponseWriter, r *http.Request) {
-	// This function is a placeholder for the database update logic.
-	// You can implement the logic to update the database here.
+func CheckHealth(w http.ResponseWriter, r *http.Request) {
 	if err := db.Ping(); err != nil {
 		log.Fatal("Cannot reach MySQL:", err)
 	}
 
-	fmt.Println("Connected to MySQL successfully")
-
+	log.Println("Connected to MySQL successfully")
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintln(w, "Database updated successfully")
+	response := map[string]string{"status": "healthy"}
+	json.NewEncoder(w).Encode(response)
 }

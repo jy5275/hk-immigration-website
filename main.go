@@ -10,8 +10,7 @@ import (
 func main() {
 	http.HandleFunc("/api/immigration-data", handlers.GetImmigrationData)
 	http.HandleFunc("/api/updatedb", handlers.UpdateDB)
-	http.HandleFunc("/api/conn", handlers.ConnectDB)
-	http.HandleFunc("/", handlers.ReportHealth)
+	http.HandleFunc("/", handlers.CheckHealth)
 
 	log.Println("Server running at http://localhost:8080/")
 	log.Fatal(http.ListenAndServe(":8080", nil))
