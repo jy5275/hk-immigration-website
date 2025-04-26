@@ -153,12 +153,11 @@ const LineChart: React.FC<LineChartProps> = ({ data, selectedCategories, separat
       x: {
         type: 'time' as const,
         time: {
-          unit: 'month' as const,
           tooltipFormat: 'PP',
           displayFormats: {
-            day: 'MMM d',
-            week: 'MMM d',
-            month: 'MMM yyyy',
+            day: 'M.d',
+            week: 'M.d',
+            month: 'yyyy.M',
           },
         },
         title: {
