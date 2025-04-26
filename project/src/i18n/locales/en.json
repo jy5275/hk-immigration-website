@@ -3,7 +3,7 @@
 	"direction": "Direction",
 	"arrival": "Arrival",
 	"departure": "Departure",
-	"mode": "Mode",
+	"mode": "Aggregate Mode",
 	"sum": "Sum",
 	"separated": "Separated",
 	"controlPoints": "Control Points",

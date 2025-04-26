@@ -6,7 +6,8 @@ export const fetchImmigrationData = async (): Promise<ImmigrationData[]> => {
   try {
     // In a production app, you would use sql.js-httpvfs or better-sqlite3 to query the database
     // For this example, we're using mock data
-    const response = await fetch('/api/immigration-data');
+    const API_URL = import.meta.env.VITE_API_URL;
+    const response = await fetch(API_URL);
     
     if (!response.ok) {
       throw new Error('Failed to fetch immigration data');
