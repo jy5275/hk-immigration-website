@@ -133,7 +133,7 @@ const DataSummary: React.FC<DataSummaryProps> = ({ data }) => {
             <div className="min-w-0 flex-1">
               <p className="text-sm text-emerald-700 font-medium">{t('topControlPoint')}</p>
               <p className="text-l leading-tight font-semibold text-emerald-900" title={summary.topControlPoint}>
-                {summary.topControlPoint}
+                {t(`controlPointNames.${summary.topControlPoint}`)}
               </p>
             </div>
           </div>
