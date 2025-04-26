@@ -8,7 +8,6 @@ export const fetchImmigrationData = async (): Promise<ImmigrationData[]> => {
     const response = await fetch('/api/immigration-data');
     
     if (!response.ok) {
-      console.error("jyjyjy", response.statusText)
       throw new Error('Failed to fetch immigration data');
     }
     

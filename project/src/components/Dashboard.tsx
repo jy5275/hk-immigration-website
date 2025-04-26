@@ -6,6 +6,7 @@ import { fetchImmigrationData } from '../services/databaseService';
 import { ImmigrationData, FilterOptions } from '../types';
 import DataSummary from './DataSummary';
 import Map from './Map';
+import { allControlPoints } from './consts';
 
 const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -33,18 +34,15 @@ const Dashboard: React.FC = () => {
       try {
         const immigrationData = await fetchImmigrationData();
         setData(immigrationData);
-        
-        const uniqueControlPoints = ["Lo Wu","Lok Ma Chau Spur Line","Airport","Shenzhen Bay","Hong Kong-Zhuhai-Macao Bridge","Express Rail Link West Kowloon","Heung Yuen Wai",
-          "Lok Ma Chau","Macau Ferry Terminal","Man Kam To","China Ferry Terminal","Kai Tak Cruise Terminal","Harbour Control","Sha Tau Kok","Hung Hom","Tuen Mun Ferry Terminal"];
-        
+                
         setFilterOptions(prev => ({
           ...prev,
-          controlPoints: uniqueControlPoints.slice(0, 1)
+          controlPoints: allControlPoints.slice(0, 1)
         }));
         
         setFilteredData(applyFilters(immigrationData, {
           ...filterOptions,
-          controlPoints: uniqueControlPoints.slice(0, 1)
+          controlPoints: allControlPoints.slice(0, 1)
         }));
       } catch (error) {
         console.error('Error loading data:', error);
@@ -87,7 +85,7 @@ const Dashboard: React.FC = () => {
             <div className="md:w-[286px]">
               <Filters 
                 filterOptions={filterOptions}
-                allControlPoints={Array.from(new Set(data.map(item => item.control_point)))}
+                allControlPoints={Array.from(allControlPoints)}
                 onFilterChange={handleFilterChange}
               />
             </div>
