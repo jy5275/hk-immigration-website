@@ -76,7 +76,7 @@ func main() {
 		// DD-MM-YYYY → YYYY-MM-DD
 		parts := strings.Split(row[0], "-")
 		if len(parts) == 3 {
-			row[0] = fmt.Sprintf("%s-%s-%s", parts[2], parts[1], parts[0])
+			row[0] = fmt.Sprintf("%s-%s-%s", parts[0], parts[1], parts[2])
 		}
 		hk, _ := strconv.Atoi(row[3])
 		ml, _ := strconv.Atoi(row[4])
