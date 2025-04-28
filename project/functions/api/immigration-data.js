@@ -35,7 +35,7 @@ export async function onRequest(context) {
   let data = [];
 
   if (context.env.ENVIRONMENT === "development") {
-    data = generateMockImmigrationData(100);
+    data = generateMockImmigrationData();
 	} else {
     const ps = context.env.hk_immi_db.prepare(`
       SELECT id, date, control_point, direction, hk_residents, mainland_visitors, other_visitors, total FROM immigration`);

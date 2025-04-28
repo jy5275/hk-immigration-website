@@ -11,8 +11,8 @@ export function generateMockImmigrationData() {
 	for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
 	  const dateString = d.toISOString().slice(0, 10); // YYYY-MM-DD 格式
   
-	  for (const direction of directions) {
-		const control_point = controlPoints[Math.floor(Math.random() * controlPoints.length)];
+	  for (const direction_id of directions) {
+		const control_point_id = controlPoints[Math.floor(Math.random() * controlPoints.length)];
 		const hk_residents = randomInt(1000, 50000);
 		const mainland_visitors = randomInt(1000, 50000);
 		const other_visitors = randomInt(100, 5000);
@@ -21,8 +21,8 @@ export function generateMockImmigrationData() {
 		mockData.push({
 		  id: idCounter++,
 		  date: dateString,
-		  control_point,
-		  direction,
+		  control_point_id,
+		  direction_id,
 		  hk_residents,
 		  mainland_visitors,
 		  other_visitors,
