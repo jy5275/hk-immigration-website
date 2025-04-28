@@ -38,7 +38,7 @@ export async function onRequest(context) {
     data = generateMockImmigrationData(100);
 	} else {
     const ps = context.env.hk_immi_db.prepare(`
-      SELECT id, date, control_point, direction, hk_residents, mainland_visitors, other_visitors, total FROM immigration limit 1000`);
+      SELECT id, date, control_point, direction, hk_residents, mainland_visitors, other_visitors, total FROM immigration`);
     try {
       const result = await ps.all();
       for (const row of result.results) {
