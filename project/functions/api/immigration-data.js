@@ -20,7 +20,11 @@ const controlPointMap = {
 };
 
 function encodeControlPoint(name) {
-	return controlPointMap[name] || -1;
+  if (name in controlPointMap) {
+    return controlPointMap[name];
+  } else {
+    return -1;
+  }
 }
   
 function encodeDirection(dir) {
