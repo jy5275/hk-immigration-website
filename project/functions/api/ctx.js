@@ -1,4 +1,4 @@
 export async function onRequest(context) {
-	const ps = context.env;
+	const ps = context;
 	return Response.json(ps);
 }  
