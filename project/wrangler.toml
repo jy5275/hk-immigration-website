@@ -8,7 +8,9 @@ database_id = "21ab6fb3-03a7-4c55-9035-9575c4174d3b"
 binding = "hk_immi_db"
 database_name = "hk_immi_db"
 
-# D1 + pages local development https://developers.cloudflare.com/d1/best-practices/local-development/#develop-locally-with-pages
+# D1 + pages local development: https://developers.cloudflare.com/d1/best-practices/local-development/#develop-locally-with-pages
+# To difficult to load data into local D1... use mock data instead
+# https://developers.cloudflare.com/pages/functions/bindings/#environment-variables
 # npm run build
 # wrangler pages dev ./dist/ --d1 hk_immi_db=21ab6fb3-03a7-4c55-9035-9575c4174d3b
 # wrangler d1 execute hk_immi_db --local --command "CREATE TABLE IF NOT EXISTS immigration ( user_id INTEGER PRIMARY KEY, email_address TEXT, created_at INTEGER, deleted INTEGER, settings TEXT);"
