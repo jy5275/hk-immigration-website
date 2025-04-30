@@ -85,7 +85,7 @@ export default {
 			}
 			console.log("Update DB OK");
 		} catch (err) {
-			console.error("请求或处理 CSV 时出错: ", err);
+			console.error("Process CSV file error: ", err);
 		}
 	},
 } satisfies ExportedHandler<Env>;
