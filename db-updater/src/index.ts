@@ -35,7 +35,7 @@ export default {
   
 		const data = {
 			"data.length": lines.length,
-			"data.line[0]": lines[0],
+			"data.line[0]": lines[1],
 			"db.firstline": result
 		}
 		return new Response(JSON.stringify(data), {
