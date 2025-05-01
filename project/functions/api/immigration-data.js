@@ -1,5 +1,3 @@
-import { generateMockImmigrationData } from './mock.js';
-
 const controlPointMap = {
 	"Lo Wu":                          0,
 	"Lok Ma Chau Spur Line":          1,
@@ -34,28 +32,24 @@ function encodeDirection(dir) {
 export async function onRequest(context) {  
   let data = [];
 
-  if (context.env.ENVIRONMENT === "development") {
-    data = generateMockImmigrationData();
-	} else {
+  try {
     const ps = context.env.hk_immi_db.prepare(`
       SELECT id, date, control_point, direction, hk_residents, mainland_visitors, other_visitors, total FROM immigration`);
-    try {
-      const result = await ps.all();
-      for (const row of result.results) {
-        data.push({
-          id: row.id,
-          date: row.date,
-          control_point_id: encodeControlPoint(row.control_point),
-          direction_id: encodeDirection(row.direction),
-          hk_residents: row.hk_residents,
-          mainland_visitors: row.mainland_visitors,
-          other_visitors: row.other_visitors,
-          total: row.total,
-        });
-      }
-    } catch (err) {
-      return new Response("D1 query failed: " + err.toString(), { status: 500 });
+    const result = await ps.all();
+    for (const row of result.results) {
+      data.push({
+        id: row.id,
+        date: row.date,
+        control_point_id: encodeControlPoint(row.control_point),
+        direction_id: encodeDirection(row.direction),
+        hk_residents: row.hk_residents,
+        mainland_visitors: row.mainland_visitors,
+        other_visitors: row.other_visitors,
+        total: row.total,
+      });
     }
+  } catch (err) {
+    return new Response(null, { status: 500, statusText: "D1 query failed: " + err.toString() });
   }
 
 	return new Response(JSON.stringify(data), {
