@@ -1,5 +1,34 @@
 import { ImmigrationData } from '../types';
-import { encodeControlPoint, encodeDirection } from '../types/consts';
+
+function generateMockImmigrationData(): ImmigrationData[] {
+	const controlPoints = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+  
+	const startDate = new Date(2020, 0, 24); // 2020-01-24
+	const endDate = new Date(2025, 3, 26);   // 2025-04-26
+  
+	const mockData: ImmigrationData[] = [];
+	let idCounter = 1;
+  
+	for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    for (const cp of controlPoints) {
+      const dateString = d.toISOString().slice(0, 10); // YYYY-MM-DD
+      const upper = 50000 - cp*3000;
+      const hk_residents = randomInt(upper / 2, upper);
+      const mainland_visitors = randomInt(upper / 2, upper);
+      const other_visitors = randomInt(100, 1000 - cp*30);
+      const total = hk_residents + mainland_visitors + other_visitors;
+      mockData.push({id: idCounter++, date: dateString, control_point_id: cp, 
+        direction_id: 0, hk_residents, mainland_visitors, other_visitors, total});
+      mockData.push({id: idCounter++, date: dateString, control_point_id: cp, 
+        direction_id: 1, hk_residents, mainland_visitors, other_visitors, total});
+    }
+  }
+	return mockData;
+}
+  
+function randomInt(min:number, max:number) {
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 // Mock data - in a real app, this would be replaced with actual database queries
 export const fetchImmigrationData = async (): Promise<ImmigrationData[]> => {
@@ -7,100 +36,14 @@ export const fetchImmigrationData = async (): Promise<ImmigrationData[]> => {
     // In a production app, you would use sql.js-httpvfs or better-sqlite3 to query the database
     // For this example, we're using mock data
     const response = await fetch("/api/immigration-data");
-    
     if (!response.ok) {
-      throw new Error('Failed to fetch immigration data');
+      throw new Error('Failed to fetch immigration data ' + response.statusText);
     }
     
     return await response.json();
   } catch (error) {
-    console.error('Error fetching immigration data:', error);
-    
+    console.error('Error fetching immigration data:', error, ', generating mock data...');
     // Return mock data for demo purposes
-    return getMockData();
+    return generateMockImmigrationData();
   }
 };
-
-// This function would be removed in a production application
-// It's only here to demonstrate the UI without a real database connection
-function getMockData(): ImmigrationData[] {
-  const data: ImmigrationData[] = [];
-  const controlPoints = [
-    'Airport', 
-    'Lo Wu', 
-    'Shenzhen Bay', 
-    'Hong Kong-Zhuhai-Macao Bridge',
-    'Lok Ma Chau'
-  ];
-  const directions = ['Arrival', 'Departure'];
-  
-  // Generate 3 years of daily data
-  const startDate = new Date('2021-01-01');
-  const endDate = new Date();
-  
-  let currentDate = new Date(startDate);
-  let id = 1;
-  
-  while (currentDate <= endDate) {
-    const dateStr = currentDate.toISOString().split('T')[0];
-    
-    // Generate data for each control point and direction
-    controlPoints.forEach(controlPoint => {
-      directions.forEach(direction => {
-        // Generate reasonable numbers with some randomness
-        // Higher numbers for busier control points
-        const baseNumber = 
-          controlPoint === 'Airport' ? 5000 :
-          controlPoint === 'Lo Wu' ? 3000 :
-          controlPoint === 'Shenzhen Bay' ? 2000 : 1000;
-        
-        // Simulate COVID impact - lower numbers in 2021, gradual increase in 2022-2023
-        const yearFactor = 
-          currentDate.getFullYear() === 2021 ? 0.1 :
-          currentDate.getFullYear() === 2022 ? 0.4 : 0.8;
-        
-        // Simulate seasonal variations
-        const month = currentDate.getMonth();
-        const seasonalFactor = 
-          (month >= 5 && month <= 7) || (month >= 11 && month <= 0) ? 1.3 : // Summer and Winter holidays
-          1.0;
-        
-        // Weekend vs weekday
-        const dayOfWeek = currentDate.getDay();
-        const weekendFactor = (dayOfWeek === 0 || dayOfWeek === 6) ? 1.5 : 1.0;
-        
-        // Direction factor (typically more arrivals than departures or vice versa depending on time period)
-        const directionFactor = direction === 'Arrival' ? 1.1 : 0.9;
-        
-        // Base calculation
-        const factor = yearFactor * seasonalFactor * weekendFactor * directionFactor;
-        const base = baseNumber * factor;
-        
-        // Add some randomness
-        const randomFactor = 0.7 + Math.random() * 0.6; // Between 0.7 and 1.3
-        
-        // Calculate traveler numbers
-        const total = Math.round(base * randomFactor);
-        const hkResidents = Math.round(total * 0.6);
-        const mainlandVisitors = Math.round(total * 0.3);
-        const otherVisitors = total - hkResidents - mainlandVisitors;
-        
-        data.push({
-          id: id++,
-          date: dateStr,
-          control_point_id: encodeControlPoint(controlPoint),
-          direction_id: encodeDirection(direction),
-          hk_residents: hkResidents,
-          mainland_visitors: mainlandVisitors,
-          other_visitors: otherVisitors,
-          total
-        });
-      });
-    });
-    
-    // Move to next day
-    currentDate.setDate(currentDate.getDate() + 1);
-  }
-  
-  return data;
-}
