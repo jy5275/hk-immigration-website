@@ -11,7 +11,7 @@
 		"enabled": true
 	},
 	"triggers": {
-		"crons": ["56 * * * *"]
+		"crons": ["12 * * * *"]
 	},
 	"d1_databases": [
 		{
