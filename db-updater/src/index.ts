@@ -51,41 +51,50 @@ export default {
 			console.error(`Failed to download: ${resp.status}`);
 			return;
 		}
+		let lines: string[] = [];
 	    try {
 			const csvText = await resp.text();
-			const lines = csvText.split("\n").slice(1); // Skip line 1
+			lines = csvText.split("\n").slice(1); // Skip line 1
 			console.log("total length:", lines.length)
-			for (let lineNumber = 2; lineNumber <= lines.length + 1; lineNumber++) {
-				const line = lines[lineNumber - 2].trim();
-				if (!line) continue;
-
-				const record = line.split(",");
-				if (record.length < 7) {
-					console.warn(`${lineNumber} format error, ignore... ${record}`);
-					continue;
-				}
-
-				try {
-					const dateParts = record[0].split("-");
-					const date = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-					const control_point = record[1];
-					const direction = record[2];
-					const hk_residents = parseInt(record[3].replace(/,/g, "")) || 0;
-					const mainland_visitors = parseInt(record[4].replace(/,/g, "")) || 0;
-					const other_visitors = parseInt(record[5].replace(/,/g, "")) || 0;
-					const total = parseInt(record[6].replace(/,/g, "")) || 0;
-					await env.hk_immi_db.prepare(
-						`INSERT OR IGNORE INTO immigration 
-						(date, control_point, direction, hk_residents, mainland_visitors, other_visitors, total) VALUES (?, ?, ?, ?, ?, ?, ?)`
-					).bind(date, control_point, direction, hk_residents, mainland_visitors, other_visitors, total).run();
-				} catch (e) {
-					console.error(`Failed to insert ${lineNumber}: ${record}`, e);
-					continue;
-				}
-			}
-			console.log("Update DB OK");
 		} catch (err) {
 			console.error("Process CSV file error: ", err);
 		}
+
+		let dataRows: any[] = [];
+		for (let lineNumber = 2; lineNumber <= lines.length + 1; lineNumber++) {
+			const line = lines[lineNumber - 2].trim();
+			if (!line) continue;
+			const record = line.split(",");
+			if (record.length < 7) {
+				console.warn(`${lineNumber} format error, ignore... ${record}`);
+				continue;
+			}
+			const dateParts = record[0].split("-");
+			const date = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+			const control_point = record[1];
+			const direction = record[2];
+			const hk = parseInt(record[3].replace(/,/g, "")) || 0;
+			const ml = parseInt(record[4].replace(/,/g, "")) || 0;
+			const other = parseInt(record[5].replace(/,/g, "")) || 0;
+			const total = parseInt(record[6].replace(/,/g, "")) || 0;
+			dataRows.push([date, control_point, direction, hk, ml, other, total]);
+		}
+
+		const batchSize = 1000;
+		for (let i = 0; i < dataRows.length; i += batchSize) {
+			const batch = dataRows.slice(i, i + batchSize);
+			const placeholders = batch.map(() => `(?, ?, ?, ?, ?, ?, ?)`).join(", ");
+			const values = batch.flat();
+			const sql = `INSERT OR IGNORE INTO immigration 
+						(date, control_point, direction, hk_residents, mainland_visitors, other_visitors, total)
+						VALUES ${placeholders}`;
+			try {
+				await env.hk_immi_db.prepare(sql).bind(...values).run();
+			} catch (e) {
+				console.error(`Failed to insert ${i}: ${batch}`, e);
+				continue;
+			}
+		}
+		console.log("Update DB OK");
 	},
 } satisfies ExportedHandler<Env>;
