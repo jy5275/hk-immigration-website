@@ -71,7 +71,6 @@ export default {
 			}
 			const dateParts = record[0].split("-");
 			const date = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-			if (date < "2025-04-25") continue;
 			const control_point = record[1];
 			const direction = record[2];
 			const hk = parseInt(record[3].replace(/,/g, "")) || 0;
@@ -81,7 +80,12 @@ export default {
 			dataRows.push([date, control_point, direction, hk, ml, other, total]);
 		}
 
-		const batchSize = 10;
+		// Only insert the last 630 records because the limit
+		// on subrequest is 50 (https://developers.cloudflare.com/workers/platform/limits/)
+		// and on bound parameters is 100 (https://developers.cloudflare.com/d1/platform/limits/)
+		dataRows = dataRows.slice(dataRows.length - 630)
+
+		const batchSize = 13; // should ensure batchSize * 7 <= 100
 		for (let i = 0; i < dataRows.length; i += batchSize) {
 			const batch = dataRows.slice(i, i + batchSize);
 			const placeholders = batch.map(() => `(?, ?, ?, ?, ?, ?, ?)`).join(", ");
