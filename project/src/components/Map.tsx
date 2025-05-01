@@ -96,12 +96,9 @@ const Map: React.FC<MapProps> = ({ selectedPoints }) => {
           />
           <BoundsUpdater points={selectedPoints} />
           {selectedPoints.map((point) => (
-            <Marker
-              key={point}
-              position={controlPointCoordinates[point]}
-            >
+            <Marker key={point} position={controlPointCoordinates[point]}>
               <Popup>
-                <span className="font-medium">{decodeControlPoint(point)}</span>
+                <span className="font-medium">{t(`controlPointNames.${decodeControlPoint(point)}`)}</span>
               </Popup>
             </Marker>
           ))}
