@@ -14,16 +14,16 @@
 	"topControlPoint": "最繁忙管制站",
 	"passengerCategories": "旅客類別",
 	"hkResidents": "香港居民",
-	"mainlandVisitors": "內地旅客",
-	"otherVisitors": "其他旅客",
+	"mainlandVisitors": "內地訪客",
+	"otherVisitors": "其他訪客",
 	"numberOfPassengers": "旅客人數",
 	"date": "日期",
 	"all": "全部",
 	"groupMetric": {
 		"all": "不分組",
-		"byDir": "方向",
-		"byCat": "類型",
-		"byCp": "管制站"
+		"byDir": "按方向",
+		"byCat": "按旅客類型",
+		"byCp": "按管制站"
 	},
 	"dateRange": {
 	  "from": "由",
