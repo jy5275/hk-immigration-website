@@ -36,7 +36,7 @@ interface LineChartProps {
 }
 
 const lineColors = [
-  '#1f77b4', // 蓝
+  '#17beff', // 青
   '#ff7f0e', // 橙
   '#2ca02c', // 绿
   '#d62728', // 红
@@ -45,7 +45,7 @@ const lineColors = [
   '#e377c2', // 粉
   '#7f7f7f', // 灰
   '#bcbd22', // 黄绿
-  '#17becf', // 青
+  '#1f77b4', // 蓝
   '#393b79', '#637939', '#8c6d31', '#843c39', '#7b4173' // 其他备用
 ];
 
@@ -185,9 +185,8 @@ const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirs, 
       case 3: // group by control_points
         let dateCp2Sum = new Map<string, Map<ControlPointId, number>>();
         data.forEach(item => {
-          const prevDate: Map<ControlPointId, number> =
-            dateCp2Sum.get(item.date) || new Map<ControlPointId, number>();
-          prevDate.set(item.control_point_id, prevDate.get(item.control_point_id) ?? 0 + getFilteredCategoryTotal(item));
+          const prevDate: Map<ControlPointId, number> = dateCp2Sum.get(item.date) ?? new Map<ControlPointId, number>();
+          prevDate.set(item.control_point_id, (prevDate.get(item.control_point_id) ?? 0) + getFilteredCategoryTotal(item));
           dateCp2Sum.set(item.date, prevDate);
         });
         allControlPoints.forEach(item => {
