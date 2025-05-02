@@ -1,4 +1,4 @@
-import type { ControlPointId, DirectionId } from "./consts";
+import type { ControlPointId, DirectionId, GroupMetricId } from "./consts";
 
 export interface ImmigrationData {
   id: number;
@@ -17,10 +17,10 @@ export interface DateRange {
 }
 
 export interface FilterOptions {
-  mode: string;
-  direction_id: DirectionId;
+  group_by: GroupMetricId;
+  direction_ids: DirectionId[];
   control_point_ids: ControlPointId[];
-  passenger_categories: string[];
+  passenger_category_ids: number[];
   date_range: DateRange;
 }
 

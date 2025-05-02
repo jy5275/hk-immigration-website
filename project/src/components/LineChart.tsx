@@ -13,8 +13,7 @@ import {
 import { Line } from 'react-chartjs-2';
 import 'chartjs-adapter-date-fns';
 import { ImmigrationData } from '../types';
-import { aggregateDataByDirection } from '../utils/dataUtils';
-import { decodeControlPoint } from '../types/consts';
+import { allControlPoints, ControlPointId, DirectionId, GroupMetricId } from '../types/consts';
 import { useTranslation } from 'react-i18next';
 
 ChartJS.register(
@@ -30,9 +29,10 @@ ChartJS.register(
 
 interface LineChartProps {
   data: ImmigrationData[];
-  selectedCategories: string[];
-  separateDirections: boolean;
-  separateControlPoints: boolean;
+  groupMetric: GroupMetricId;
+  selectedDirs: DirectionId[];
+  selectedCategories: number[];
+  selectedControlPoints: ControlPointId[];
 }
 
 const categoryColors: Record<string, string> = {
@@ -49,7 +49,7 @@ const categoryLabels: Record<string, string> = {
   total: 'Total',
 };
 
-const LineChart: React.FC<LineChartProps> = ({ data, selectedCategories, separateDirections=true, separateControlPoints }) => {
+const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirs, selectedControlPoints, selectedCategories }) => {
   const [chartData, setChartData] = useState({
     labels: [] as string[],
     datasets: [] as any[],
@@ -65,86 +65,134 @@ const LineChart: React.FC<LineChartProps> = ({ data, selectedCategories, separat
       return;
     }
 
-    const { arrivalData, departureData, dates } = aggregateDataByDirection(data);
     const datasets: any[] = [];
+    const dateSet = new Set<string>();
+    data.forEach(item => dateSet.add(item.date))
+    const dates = Array.from(dateSet).sort();
 
-    // If control points are selected, show total for each control point
-    const showControlPointTotals = true; // selectedCategories.length === 0; // TODO: Implement logic to determine if control points should be shown
+    const getFilteredCategoryTotal = (item: ImmigrationData) => {
+      let total = item.total;
+      if (!selectedCategories.includes(0)) {
+        total -= item.hk_residents;
+      }
+      if (!selectedCategories.includes(1)) {
+        total -= item.mainland_visitors;
+      }
+      if (!selectedCategories.includes(2)) {
+        total -= item.other_visitors;
+      }
+      return total
+    };
 
-    if (showControlPointTotals) {
-      const controlPointIDs = Array.from(new Set(data.map(item => item.control_point_id)));
-      if (!separateControlPoints) {
-        // Get sum of all control points
+    console.log("jyjyjy::groupMetric", groupMetric);
+    switch (groupMetric) {
+      case 0:
         let date2sum = new Map<string, number>();
-        controlPointIDs.forEach((controlPointID, index) => {
-          const controlPointData = data.filter(item => item.control_point_id === controlPointID);
-          const { arrivalData: cpArrival, departureData: cpDeparture } = aggregateDataByDirection(controlPointData);
-          const directionID = data[0]?.direction_id;
-          dates.forEach(date => {
-            const count = directionID === 0 
-              ? (cpArrival[date] === undefined ? 0 : cpArrival[date].total || 0) 
-              : (cpDeparture[date] === undefined ? 0 : cpDeparture[date].total || 0);
-            let prev = date2sum.get(date) || 0;
-            date2sum.set(date, prev + count);
-          });
+        data.forEach(item => {
+          const prev = date2sum.get(item.date) || 0;
+          date2sum.set(item.date, prev + getFilteredCategoryTotal(item));
         });
         datasets.push({
           label: t('all'),
           data: dates.map(date => { return date2sum.get(date); }),
           borderColor: Object.values(categoryColors)[0],
-          backgroundColor: `${Object.values(categoryColors)[0]}33`,
-          tension: 0.3,
-          pointRadius: 1,
-          pointHoverRadius: 5,
-          borderWidth: 2,
+          backgroundColor: Object.values(categoryColors)[0],
+          tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2,});
+        break;
+
+      case 1: // group by directions. It's possible that `data` contains both arrival and departure items
+        let dateDir2Sum = new Map<string, [number, number]>();
+        data.forEach(item => {
+          const prev = dateDir2Sum.get(item.date) || [0, 0];
+          prev[item.direction_id] = (prev[item.direction_id] || 0) + getFilteredCategoryTotal(item);
+          dateDir2Sum.set(item.date, prev);
         });
-      } else {
-        controlPointIDs.forEach((controlPointID, index) => {
-          const controlPointData = data.filter(item => item.control_point_id === controlPointID);
-          const { arrivalData: cpArrival, departureData: cpDeparture } = aggregateDataByDirection(controlPointData);
+        if (selectedDirs.includes(0)) {
           datasets.push({
-            label: t(`controlPointNames.${decodeControlPoint(controlPointID)}`),
-            data: dates.map(date => {
-              const directionID = data[0]?.direction_id;
-              return directionID === 0 
-                ? cpArrival[date]?.total || 0 : cpDeparture[date]?.total || 0;
-            }),
-            borderColor: Object.values(categoryColors)[index % Object.keys(categoryColors).length],
-            backgroundColor: `${Object.values(categoryColors)[index % Object.keys(categoryColors).length]}33`,
-            tension: 0.3,
-            pointRadius: 1,
-            pointHoverRadius: 5,
-            borderWidth: 2,
-          });
+            label: t('arrival'),
+            data: dates.map(date => (dateDir2Sum.get(date) ?? [0, 0])[0]),
+            borderColor: Object.values(categoryColors)[0],
+            backgroundColor: Object.values(categoryColors)[0],
+            tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2});
+        }
+        if (selectedDirs.includes(1)) {
+          datasets.push({
+            label: t('departure'),
+            data: dates.map(date => (dateDir2Sum.get(date) ?? [0, 0])[1]),
+            borderColor: Object.values(categoryColors)[0],
+            backgroundColor: Object.values(categoryColors)[0],
+            tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2});
+        }
+        break;
+
+      case 2: // group by categories
+        let dateCat2Sum = new Map<string, [number, number, number]>();
+        data.forEach(item => {
+          const prev = dateCat2Sum.get(item.date) ?? [0, 0, 0];
+          if (selectedCategories.includes(0)) {
+            prev[0] = (prev[0] ?? 0) + item.hk_residents;
+          }
+          if (selectedCategories.includes(1)) {
+            prev[1] = (prev[1] ?? 0) + item.mainland_visitors;
+          }
+          if (selectedCategories.includes(2)) {
+            prev[2] = (prev[2] ?? 0) + item.other_visitors;
+          }
+          dateCat2Sum.set(item.date, prev);
         });
-      }
+
+        if (selectedCategories.includes(0)) {
+          datasets.push({
+            label: t('hkResidents'),
+            data: dates.map(date => { return (dateCat2Sum.get(date) ?? [0, 0, 0])[0]; }),
+            borderColor: Object.values(categoryColors)[0],
+            backgroundColor: Object.values(categoryColors)[0],
+            tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2});
+        }
+        if (selectedCategories.includes(1)) {
+          datasets.push({
+            label: t('mainlandVisitors'),
+            data: dates.map(date => { return (dateCat2Sum.get(date) ?? [0, 0, 0])[1]; }),
+            borderColor: Object.values(categoryColors)[1],
+            backgroundColor: Object.values(categoryColors)[1],
+            tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2});
+        }
+        if (selectedCategories.includes(2)) {
+          datasets.push({
+            label: t('otherVisitors'),
+            data: dates.map(date => { return (dateCat2Sum.get(date) ?? [0, 0, 0])[2]; }),
+            borderColor: Object.values(categoryColors)[2],
+            backgroundColor: Object.values(categoryColors)[2],
+            tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2});
+        }
+        break;
+
+      case 3: // group by control_points
+        let dateCp2Sum = new Map<string, Map<ControlPointId, number>>();
+        data.forEach(item => {
+          const prevDate: Map<ControlPointId, number> = 
+            dateCp2Sum.get(item.date) || new Map<ControlPointId, number>();
+          prevDate.set(item.control_point_id, prevDate.get(item.control_point_id) ?? 0 + getFilteredCategoryTotal(item));
+          dateCp2Sum.set(item.date, prevDate);
+        });
+        allControlPoints.forEach(item => {
+          const idx = allControlPoints.indexOf(item);
+          if (selectedControlPoints.includes(idx)) {
+            datasets.push({
+              label: t(`controlPointNames.${item}`),
+              data: dates.map(date => { return dateCp2Sum.get(date)?.get(idx) ?? 0; }),
+              borderColor: Object.values(categoryColors)[0],
+              backgroundColor: Object.values(categoryColors)[0],
+              tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2,});  
+          }
+        })
     }
-    //  else {
-    //   // Show selected traveler categories
-    //   selectedCategories.forEach(category => {
-    //     datasets.push({
-    //       label: categoryLabels[category],
-    //       data: dates.map(date => {
-    //         const directionID = data[0]?.direction_id;
-    //         return directionID === 0 
-    //           ? arrivalData[date]?.[category] || 0 
-    //           : departureData[date]?.[category] || 0;
-    //       }),
-    //       borderColor: categoryColors[category],
-    //       backgroundColor: `${categoryColors[category]}33`,
-    //       tension: 0.3,
-    //       pointRadius: 1,
-    //       pointHoverRadius: 5,
-    //       borderWidth: 2,
-    //     });
-    //   });
-    // }
 
     setChartData({
       labels: dates,
       datasets,
     });
-  }, [data, selectedCategories]);
+  }, [data]);
 
   const options = {
     responsive: true,
