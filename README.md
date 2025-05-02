@@ -1,4 +1,4 @@
-This site has been deployed to http://hk-immigration.jiangyan.click/
+This site has been deployed to https://hk-immigration.jiangyan.click/
 
 # How to run manually
 
