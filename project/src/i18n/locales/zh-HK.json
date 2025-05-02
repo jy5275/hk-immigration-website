@@ -3,7 +3,7 @@
 	"direction": "方向",
 	"arrival": "入境",
 	"departure": "出境",
-	"mode": "聚合模式",
+	"mode": "分組指標",
 	"sum": "是",
 	"separated": "否",
 	"controlPoints": "管制站",
@@ -19,6 +19,12 @@
 	"numberOfPassengers": "旅客人數",
 	"date": "日期",
 	"all": "全部",
+	"groupMetric": {
+		"all": "不分組",
+		"byDir": "方向",
+		"byCat": "類型",
+		"byCp": "管制站"
+	},
 	"dateRange": {
 	  "from": "由",
 	  "to": "至",
