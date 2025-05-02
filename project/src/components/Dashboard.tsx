@@ -18,10 +18,10 @@ const Dashboard: React.FC = () => {
   defaultStartDate.setMonth(defaultStartDate.getMonth() - 6);
 
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
-    direction_id: 0,
+    direction_ids: [0, 1],
     control_point_ids: [],
-    mode: "separated",
-    passenger_categories: ['hk_residents', 'mainland_visitors', 'other_visitors'],
+    group_by: 0,
+    passenger_category_ids: [0, 1, 2],
     date_range: {
       startDate: defaultStartDate,
       endDate: defaultEndDate
@@ -37,12 +37,16 @@ const Dashboard: React.FC = () => {
 
         setFilterOptions(prev => ({
           ...prev,
-          control_point_ids: [0]
+          control_point_ids: [0],
+          passenger_category_ids: [0, 1, 2],
+          direction_ids: [0]
         }));
         
         setFilteredData(applyFilters(immigrationData, {
           ...filterOptions,
-          control_point_ids: [0]
+          control_point_ids: [0],
+          passenger_category_ids: [0, 1, 2],
+          direction_ids: [0]
         }));
       } catch (error) {
         console.error('Error loading data:', error);
@@ -58,8 +62,7 @@ const Dashboard: React.FC = () => {
     return data.filter(item => {
       const dateInRange = new Date(item.date) >= filters.date_range.startDate &&
                           new Date(item.date) <= filters.date_range.endDate;
-      
-      const directionMatch = filters.direction_id == item.direction_id;
+      const directionMatch = filters.direction_ids.includes(item.direction_id);
       const controlPointMatch = filters.control_point_ids.includes(item.control_point_id);
       return dateInRange && directionMatch && controlPointMatch;
     });
@@ -99,10 +102,11 @@ const Dashboard: React.FC = () => {
                 ) : (
                   <LineChart 
                     key={i18n.language}
-                    data={filteredData} 
-                    selectedCategories={filterOptions.passenger_categories}
-                    separateControlPoints={filterOptions.mode === 'separated' ? true : false}
-                    separateDirections={true}
+                    data={filteredData}
+                    groupMetric={filterOptions.group_by}
+                    selectedDirs={filterOptions.direction_ids}
+                    selectedControlPoints={filterOptions.control_point_ids}
+                    selectedCategories={filterOptions.passenger_category_ids}
                   />
                 )}
               </div>

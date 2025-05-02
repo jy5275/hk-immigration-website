@@ -4,7 +4,7 @@
 	"arrival": "Arrival",
 	"departure": "Departure",
 	"mode": "Aggregate Mode",
-	"sum": "Sum",
+	"sum": "Group Metric",
 	"separated": "Separated",
 	"controlPoints": "Control Points",
 	"controlPointsMap": "Control Points Map",
@@ -19,6 +19,12 @@
 	"numberOfPassengers": "Number of Passengers",
 	"date": "Date",
 	"all": "All",
+	"groupMetric": {
+		"all": "Sum",
+		"byDir": "Directions",
+		"byCat": "Categories",
+		"byCp": "Control Points"
+	},
 	"dateRange": {
 	  "from": "From",
 	  "to": "To",
