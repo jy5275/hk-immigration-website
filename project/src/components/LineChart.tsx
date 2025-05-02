@@ -35,6 +35,21 @@ interface LineChartProps {
   selectedControlPoints: ControlPointId[];
 }
 
+const lineColors = [
+  '#1f77b4', // 蓝
+  '#ff7f0e', // 橙
+  '#2ca02c', // 绿
+  '#d62728', // 红
+  '#9467bd', // 紫
+  '#8c564b', // 棕
+  '#e377c2', // 粉
+  '#7f7f7f', // 灰
+  '#bcbd22', // 黄绿
+  '#17becf', // 青
+  '#393b79', '#637939', '#8c6d31', '#843c39', '#7b4173' // 其他备用
+];
+
+
 const categoryColors: Record<string, string> = {
   hk_residents: 'rgb(53, 162, 235)',
   mainland_visitors: 'rgb(255, 99, 132)',
@@ -95,8 +110,8 @@ const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirs, 
         datasets.push({
           label: t('all'),
           data: dates.map(date => { return date2sum.get(date); }),
-          borderColor: Object.values(categoryColors)[0],
-          backgroundColor: Object.values(categoryColors)[0],
+          borderColor: lineColors[0],
+          backgroundColor: lineColors[0],        
           tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2,});
         break;
 
@@ -111,16 +126,16 @@ const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirs, 
           datasets.push({
             label: t('arrival'),
             data: dates.map(date => (dateDir2Sum.get(date) ?? [0, 0])[0]),
-            borderColor: Object.values(categoryColors)[0],
-            backgroundColor: Object.values(categoryColors)[0],
+            borderColor: lineColors[0],
+            backgroundColor: lineColors[0],
             tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2});
         }
         if (selectedDirs.includes(1)) {
           datasets.push({
             label: t('departure'),
             data: dates.map(date => (dateDir2Sum.get(date) ?? [0, 0])[1]),
-            borderColor: Object.values(categoryColors)[0],
-            backgroundColor: Object.values(categoryColors)[0],
+            borderColor: lineColors[1],
+            backgroundColor: lineColors[1],
             tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2});
         }
         break;
@@ -145,24 +160,24 @@ const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirs, 
           datasets.push({
             label: t('hkResidents'),
             data: dates.map(date => { return (dateCat2Sum.get(date) ?? [0, 0, 0])[0]; }),
-            borderColor: Object.values(categoryColors)[0],
-            backgroundColor: Object.values(categoryColors)[0],
-            tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2});
+            borderColor: lineColors[0],
+            backgroundColor: lineColors[0],
+          tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2});
         }
         if (selectedCategories.includes(1)) {
           datasets.push({
             label: t('mainlandVisitors'),
             data: dates.map(date => { return (dateCat2Sum.get(date) ?? [0, 0, 0])[1]; }),
-            borderColor: Object.values(categoryColors)[1],
-            backgroundColor: Object.values(categoryColors)[1],
+            borderColor: lineColors[1],
+            backgroundColor: lineColors[1],
             tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2});
         }
         if (selectedCategories.includes(2)) {
           datasets.push({
             label: t('otherVisitors'),
             data: dates.map(date => { return (dateCat2Sum.get(date) ?? [0, 0, 0])[2]; }),
-            borderColor: Object.values(categoryColors)[2],
-            backgroundColor: Object.values(categoryColors)[2],
+            borderColor: lineColors[2],
+            backgroundColor: lineColors[2],
             tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2});
         }
         break;
@@ -170,7 +185,7 @@ const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirs, 
       case 3: // group by control_points
         let dateCp2Sum = new Map<string, Map<ControlPointId, number>>();
         data.forEach(item => {
-          const prevDate: Map<ControlPointId, number> = 
+          const prevDate: Map<ControlPointId, number> =
             dateCp2Sum.get(item.date) || new Map<ControlPointId, number>();
           prevDate.set(item.control_point_id, prevDate.get(item.control_point_id) ?? 0 + getFilteredCategoryTotal(item));
           dateCp2Sum.set(item.date, prevDate);
@@ -181,9 +196,9 @@ const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirs, 
             datasets.push({
               label: t(`controlPointNames.${item}`),
               data: dates.map(date => { return dateCp2Sum.get(date)?.get(idx) ?? 0; }),
-              borderColor: Object.values(categoryColors)[0],
-              backgroundColor: Object.values(categoryColors)[0],
-              tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2,});  
+              borderColor: lineColors[idx % lineColors.length],
+              backgroundColor: lineColors[idx % lineColors.length],
+              tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2,});
           }
         })
     }
