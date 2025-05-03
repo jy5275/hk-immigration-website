@@ -10,9 +10,10 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface DataSummaryProps {
   data: ImmigrationData[];
+  selectedCategories: number[];
 }
 
-const DataSummary: React.FC<DataSummaryProps> = ({ data }) => {
+const DataSummary: React.FC<DataSummaryProps> = ({ data, selectedCategories }) => {
   const { t } = useTranslation();
   const summary = useMemo(() => {
     if (data.length === 0) {
@@ -27,11 +28,22 @@ const DataSummary: React.FC<DataSummaryProps> = ({ data }) => {
       };
     }
 
-    const totalTravelers = data.reduce((sum, item) => sum + item.total, 0);
-    const totalHkResidents = data.reduce((sum, item) => sum + item.hk_residents, 0);
-    const totalMainlandVisitors = data.reduce((sum, item) => sum + item.mainland_visitors, 0);
-    const totalOtherVisitors = data.reduce((sum, item) => sum + item.other_visitors, 0);
-
+    let totalTravelers = 0;
+    let totalHkResidents = 0;
+    let totalMainlandVisitors = 0;
+    let totalOtherVisitors = 0;
+    if (selectedCategories.includes(0)) {
+      totalHkResidents = data.reduce((sum, item) => sum + item.hk_residents, 0);
+      totalTravelers += totalHkResidents;
+    }
+    if (selectedCategories.includes(1)) {
+      totalMainlandVisitors = data.reduce((sum, item) => sum + item.mainland_visitors, 0);
+      totalTravelers += totalMainlandVisitors;
+    }
+    if (selectedCategories.includes(2)) {
+      totalOtherVisitors = data.reduce((sum, item) => sum + item.other_visitors, 0);
+      totalTravelers += totalOtherVisitors;
+    }
     const controlPointID2Counts = data.reduce((acc, item) => {
       acc[item.control_point_id] = (acc[item.control_point_id] || 0) + item.total;
       return acc;

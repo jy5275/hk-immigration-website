@@ -116,7 +116,7 @@ const Dashboard: React.FC = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Map selectedPoints={filterOptions.control_point_ids} />
-          <DataSummary data={filteredData} />
+          <DataSummary data={filteredData} selectedCategories={filterOptions.passenger_category_ids} />
         </div>
       </div>
     </div>

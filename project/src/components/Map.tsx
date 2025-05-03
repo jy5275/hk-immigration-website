@@ -86,7 +86,6 @@ const Map: React.FC<MapProps> = ({ selectedPoints }) => {
           zoom={11} 
           className="h-full w-full"
           minZoom={9}
-          maxZoom={14}
           maxBounds={HK_BOUNDS}
           maxBoundsViscosity={1.0}
         >

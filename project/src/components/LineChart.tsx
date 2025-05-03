@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useTransition } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -49,21 +49,6 @@ const lineColors = [
   '#393b79', '#637939', '#8c6d31', '#843c39', '#7b4173' // 其他备用
 ];
 
-
-const categoryColors: Record<string, string> = {
-  hk_residents: 'rgb(53, 162, 235)',
-  mainland_visitors: 'rgb(255, 99, 132)',
-  other_visitors: 'rgb(75, 192, 192)',
-  total: 'rgb(153, 102, 255)',
-};
-
-const categoryLabels: Record<string, string> = {
-  hk_residents: 'Hong Kong Residents',
-  mainland_visitors: 'Mainland Visitors',
-  other_visitors: 'Other Visitors',
-  total: 'Total',
-};
-
 const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirs, selectedControlPoints, selectedCategories }) => {
   const [chartData, setChartData] = useState({
     labels: [] as string[],
@@ -73,10 +58,7 @@ const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirs, 
 
   useEffect(() => {
     if (data.length === 0) {
-      setChartData({
-        labels: [],
-        datasets: [],
-      });
+      setChartData({ labels: [], datasets: [] });
       return;
     }
 
@@ -84,22 +66,15 @@ const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirs, 
     const dateSet = new Set<string>();
     data.forEach(item => dateSet.add(item.date))
     const dates = Array.from(dateSet).sort();
-
+    const selectedCatSet = new Set(selectedCategories);
     const getFilteredCategoryTotal = (item: ImmigrationData) => {
       let total = item.total;
-      if (!selectedCategories.includes(0)) {
-        total -= item.hk_residents;
-      }
-      if (!selectedCategories.includes(1)) {
-        total -= item.mainland_visitors;
-      }
-      if (!selectedCategories.includes(2)) {
-        total -= item.other_visitors;
-      }
+      if (!selectedCatSet.has(0)) total -= item.hk_residents;
+      if (!selectedCatSet.has(1)) total -= item.mainland_visitors;
+      if (!selectedCatSet.has(2)) total -= item.other_visitors;
       return total
     };
 
-    console.log("jyjyjy::groupMetric", groupMetric);
     switch (groupMetric) {
       case 0:
         let date2sum = new Map<string, number>();
@@ -117,15 +92,21 @@ const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirs, 
 
       case 1: // group by directions. It's possible that `data` contains both arrival and departure items
         let dateDir2Sum = new Map<string, [number, number]>();
+        const defaultCouple: [number, number] = [0, 0];
+
         data.forEach(item => {
-          const prev = dateDir2Sum.get(item.date) || [0, 0];
-          prev[item.direction_id] = (prev[item.direction_id] || 0) + getFilteredCategoryTotal(item);
-          dateDir2Sum.set(item.date, prev);
+          if (!dateDir2Sum.has(item.date)) {
+            dateDir2Sum.set(item.date, [0, 0]);
+          }
+          let prev = dateDir2Sum.get(item.date)!;
+          prev[item.direction_id] = prev[item.direction_id] + getFilteredCategoryTotal(item);
+          console.log(item.date, prev)
         });
+        console.log(dateDir2Sum)
         if (selectedDirs.includes(0)) {
           datasets.push({
             label: t('arrival'),
-            data: dates.map(date => (dateDir2Sum.get(date) ?? [0, 0])[0]),
+            data: dates.map(date => (dateDir2Sum.get(date) ?? defaultCouple)[0]),
             borderColor: lineColors[0],
             backgroundColor: lineColors[0],
             tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2});
@@ -133,7 +114,7 @@ const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirs, 
         if (selectedDirs.includes(1)) {
           datasets.push({
             label: t('departure'),
-            data: dates.map(date => (dateDir2Sum.get(date) ?? [0, 0])[1]),
+            data: dates.map(date => (dateDir2Sum.get(date) ?? defaultCouple)[1]),
             borderColor: lineColors[1],
             backgroundColor: lineColors[1],
             tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2});
@@ -142,59 +123,53 @@ const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirs, 
 
       case 2: // group by categories
         let dateCat2Sum = new Map<string, [number, number, number]>();
+        const defaultTriplet: [number, number, number] = [0, 0, 0];
+
         data.forEach(item => {
-          const prev = dateCat2Sum.get(item.date) ?? [0, 0, 0];
-          if (selectedCategories.includes(0)) {
-            prev[0] = (prev[0] ?? 0) + item.hk_residents;
+          if (!dateCat2Sum.has(item.date)) {
+            dateCat2Sum.set(item.date, [0, 0, 0]);
           }
-          if (selectedCategories.includes(1)) {
-            prev[1] = (prev[1] ?? 0) + item.mainland_visitors;
-          }
-          if (selectedCategories.includes(2)) {
-            prev[2] = (prev[2] ?? 0) + item.other_visitors;
-          }
-          dateCat2Sum.set(item.date, prev);
+          const prev = dateCat2Sum.get(item.date)!;
+          if (selectedCatSet.has(0)) prev[0] += item.hk_residents;
+          if (selectedCatSet.has(1)) prev[1] += item.mainland_visitors;
+          if (selectedCatSet.has(2)) prev[2] += item.other_visitors;
         });
 
-        if (selectedCategories.includes(0)) {
-          datasets.push({
-            label: t('hkResidents'),
-            data: dates.map(date => { return (dateCat2Sum.get(date) ?? [0, 0, 0])[0]; }),
-            borderColor: lineColors[0],
-            backgroundColor: lineColors[0],
-          tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2});
-        }
-        if (selectedCategories.includes(1)) {
-          datasets.push({
-            label: t('mainlandVisitors'),
-            data: dates.map(date => { return (dateCat2Sum.get(date) ?? [0, 0, 0])[1]; }),
-            borderColor: lineColors[1],
-            backgroundColor: lineColors[1],
-            tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2});
-        }
-        if (selectedCategories.includes(2)) {
-          datasets.push({
-            label: t('otherVisitors'),
-            data: dates.map(date => { return (dateCat2Sum.get(date) ?? [0, 0, 0])[2]; }),
-            borderColor: lineColors[2],
-            backgroundColor: lineColors[2],
-            tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2});
-        }
+        const categoryConfig: { idx: number; labelKey: string }[] = [
+          { idx: 0, labelKey: 'hkResidents' },
+          { idx: 1, labelKey: 'mainlandVisitors' },
+          { idx: 2, labelKey: 'otherVisitors' }
+        ];
+
+        categoryConfig.forEach(({ idx, labelKey }) => {
+          if (selectedCatSet.has(idx)) {
+            datasets.push({
+              label: t(labelKey),
+              data: dates.map(date => (dateCat2Sum.get(date) ?? defaultTriplet)[idx]),
+              borderColor: lineColors[idx],
+              backgroundColor: lineColors[idx],
+              tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2
+            });
+          }
+        });
         break;
 
       case 3: // group by control_points
         let dateCp2Sum = new Map<string, Map<ControlPointId, number>>();
         data.forEach(item => {
-          const prevDate: Map<ControlPointId, number> = dateCp2Sum.get(item.date) ?? new Map<ControlPointId, number>();
+          if (!dateCp2Sum.has(item.date)) {
+            dateCp2Sum.set(item.date, new Map<ControlPointId, number>());
+          }
+          const prevDate: Map<ControlPointId, number> = dateCp2Sum.get(item.date)!;
           prevDate.set(item.control_point_id, (prevDate.get(item.control_point_id) ?? 0) + getFilteredCategoryTotal(item));
-          dateCp2Sum.set(item.date, prevDate);
         });
+        const selectedCpSet = new Set(selectedControlPoints);        
         allControlPoints.forEach(item => {
           const idx = allControlPoints.indexOf(item);
-          if (selectedControlPoints.includes(idx)) {
+          if (selectedCpSet.has(idx)) {
             datasets.push({
               label: t(`controlPointNames.${item}`),
-              data: dates.map(date => { return dateCp2Sum.get(date)?.get(idx) ?? 0; }),
+              data: dates.map(date => dateCp2Sum.get(date)?.get(idx) ?? 0),
               borderColor: lineColors[idx % lineColors.length],
               backgroundColor: lineColors[idx % lineColors.length],
               tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2,});
@@ -202,10 +177,7 @@ const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirs, 
         })
     }
 
-    setChartData({
-      labels: dates,
-      datasets,
-    });
+    setChartData({ labels: dates, datasets });
   }, [data]);
 
   const options = {
