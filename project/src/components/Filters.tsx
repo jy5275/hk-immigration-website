@@ -1,6 +1,6 @@
 import React from 'react';
 import { FilterOptions } from '../types';
-import { allControlPoints, DirectionId, encodeCategory, encodeControlPoint, encodeDirection, GroupMetricId } from '../types/consts';
+import { allCategories, allControlPoints, DirectionId, encodeCategory, encodeControlPoint, encodeDirection, GroupMetricId } from '../types/consts';
 import { useTranslation } from 'react-i18next';
 
 const styles = {
@@ -54,11 +54,11 @@ const Filters: React.FC<FiltersProps> = ({
     });
   };
 
-  const handleTravelerCategoryChange = (categoryIDs: number) => {
-    const newCategories = filterOptions.passenger_category_ids.includes(categoryIDs)
-      ? filterOptions.passenger_category_ids.filter(c => c !== categoryIDs)
-      : [...filterOptions.passenger_category_ids, categoryIDs];
-    onFilterChange({ passenger_category_ids: newCategories });
+  const handleCategoryChange = (categoryIDs: number) => {
+    const newCategories = filterOptions.category_ids.includes(categoryIDs)
+      ? filterOptions.category_ids.filter(c => c !== categoryIDs)
+      : [...filterOptions.category_ids, categoryIDs];
+    onFilterChange({ category_ids: newCategories });
   };
 
   return (
@@ -102,17 +102,15 @@ const Filters: React.FC<FiltersProps> = ({
       <div className={styles.filterBg}>
         <h3 className={`${styles.filterTitleText} text-base font-medium mb-2`}>{t('passengerCategories')}</h3>
         <div className="space-y-1.5">
-          {[{ id: 'hkResidents', label: 'Hong Kong Residents' },
-          { id: 'mainlandVisitors', label: 'Mainland Visitors' },
-          { id: 'otherVisitors', label: 'Other Visitors' }].map(category => {
-            const isSelected = filterOptions.passenger_category_ids.includes(encodeCategory(category.id));
+          {allCategories.map(category => {
+            const isSelected = filterOptions.category_ids.includes(encodeCategory(category));
             return (
-              <label key={category.id} className={`flex items-center space-x-1.5 cursor-pointer text-sm ${styles.hoverEffect}`}>
+              <label key={category} className={`flex items-center space-x-1.5 cursor-pointer text-sm ${styles.hoverEffect}`}>
                 <input type="checkbox" checked={isSelected}
-                  onChange={() => handleTravelerCategoryChange(encodeCategory(category.id))}
+                  onChange={() => handleCategoryChange(encodeCategory(category))}
                   name="category"
                   className={`${isSelected ? styles.radioSelected : styles.radioUnselected}`} />
-                <span className={`${isSelected ? styles.textSelected : styles.textUnselected}`}>{t(`${category.id}`)}</span>
+                <span className={`${isSelected ? styles.textSelected : styles.textUnselected}`}>{t(`${category}`)}</span>
               </label>
             );
           })}
@@ -128,7 +126,7 @@ const Filters: React.FC<FiltersProps> = ({
                 type="checkbox"
                 checked={allControlPoints.length === filterOptions.control_point_ids.length}
                 onChange={handleSelectAllControlPoints}
-                disabled={filterOptions.passenger_category_ids.length > 100}
+                disabled={filterOptions.category_ids.length > 100}
                 className={`${styles.checkBoxBasic}`}
               />
               <span className={`font-medium ${allControlPoints.length === filterOptions.control_point_ids.length
@@ -142,7 +140,7 @@ const Filters: React.FC<FiltersProps> = ({
                     type="checkbox"
                     checked={isSelected}
                     onChange={() => handleControlPointChange(encodeControlPoint(point))}
-                    disabled={filterOptions.passenger_category_ids.length > 100}
+                    disabled={filterOptions.category_ids.length > 100}
                     className={`${styles.checkBoxBasic}`}
                   />
                   <span className={`${isSelected ? styles.textSelected : styles.textUnselected}`}>

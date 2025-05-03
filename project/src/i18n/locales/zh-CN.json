@@ -4,8 +4,6 @@
 	"arrival": "入境",
 	"departure": "出境",
 	"mode": "分组指标",
-	"sum": "是",
-	"separated": "否",
 	"controlPoints": "管制站",
 	"controlPointsMap": "管制站地图",
 	"selectAll": "全选",
@@ -22,7 +20,7 @@
 	"groupMetric": {
 		"all": "不分組",
 		"byDir": "按方向",
-		"byCat": "按旅客类型",
+		"byCat": "按旅客类别",
 		"byCp": "按管制站"
 	},
 	"dateRange": {
