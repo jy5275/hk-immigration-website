@@ -20,7 +20,7 @@ export interface FilterOptions {
   group_by: GroupMetricId;
   direction_ids: DirectionId[];
   control_point_ids: ControlPointId[];
-  passenger_category_ids: number[];
+  category_ids: number[];
   date_range: DateRange;
 }
 

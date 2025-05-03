@@ -21,7 +21,7 @@ const Dashboard: React.FC = () => {
     direction_ids: [0, 1],
     control_point_ids: [],
     group_by: 0,
-    passenger_category_ids: [0, 1, 2],
+    category_ids: [0, 1, 2],
     date_range: {
       startDate: defaultStartDate,
       endDate: defaultEndDate
@@ -38,14 +38,14 @@ const Dashboard: React.FC = () => {
         setFilterOptions(prev => ({
           ...prev,
           control_point_ids: [0],
-          passenger_category_ids: [0, 1, 2],
+          category_ids: [0, 1, 2],
           direction_ids: [0]
         }));
         
         setFilteredData(applyFilters(immigrationData, {
           ...filterOptions,
           control_point_ids: [0],
-          passenger_category_ids: [0, 1, 2],
+          category_ids: [0, 1, 2],
           direction_ids: [0]
         }));
       } catch (error) {
@@ -106,7 +106,7 @@ const Dashboard: React.FC = () => {
                     groupMetric={filterOptions.group_by}
                     selectedDirs={filterOptions.direction_ids}
                     selectedControlPoints={filterOptions.control_point_ids}
-                    selectedCategories={filterOptions.passenger_category_ids}
+                    selectedCategories={filterOptions.category_ids}
                   />
                 )}
               </div>
@@ -116,7 +116,7 @@ const Dashboard: React.FC = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Map selectedPoints={filterOptions.control_point_ids} />
-          <DataSummary data={filteredData} selectedCategories={filterOptions.passenger_category_ids} />
+          <DataSummary data={filteredData} selectedCategories={filterOptions.category_ids} />
         </div>
       </div>
     </div>
