@@ -19,8 +19,8 @@ const Dashboard: React.FC = () => {
   defaultStartDate.setMonth(defaultStartDate.getMonth() - 6);
   const defaultOptions = {
     direction_ids: [0, 1] as DirectionId[],
-    control_point_ids: Array.from(allControlPoints, (_, i) => i) as ControlPointId[],
-    group_by: 0 as GroupMetricId,
+    control_point_ids: Array.from(allControlPoints.slice(0, -3), (_, i) => i) as ControlPointId[],
+    group_by: 2 as GroupMetricId,
     category_ids: Array.from(allCategories, (_, i) => i),
     date_range: {
       startDate: defaultStartDate,
