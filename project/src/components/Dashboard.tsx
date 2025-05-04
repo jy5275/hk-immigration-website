@@ -7,6 +7,7 @@ import { ImmigrationData, FilterOptions } from '../types';
 import DataSummary from './DataSummary';
 import Map from './Map';
 import { useTranslation } from 'react-i18next';
+import { allCategories, allControlPoints, ControlPointId, DirectionId, GroupMetricId } from '../types/consts';
 
 const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -16,17 +17,18 @@ const Dashboard: React.FC = () => {
   const defaultEndDate = new Date();
   const defaultStartDate = new Date();
   defaultStartDate.setMonth(defaultStartDate.getMonth() - 6);
-
-  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
-    direction_ids: [0, 1],
-    control_point_ids: [],
-    group_by: 0,
-    category_ids: [0, 1, 2],
+  const defaultOptions = {
+    direction_ids: [0, 1] as DirectionId[],
+    control_point_ids: Array.from(allControlPoints, (_, i) => i) as ControlPointId[],
+    group_by: 0 as GroupMetricId,
+    category_ids: Array.from(allCategories, (_, i) => i),
     date_range: {
       startDate: defaultStartDate,
       endDate: defaultEndDate
     }
-  });
+  };
+
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>(defaultOptions);
 
   useEffect(() => {
     const loadData = async () => {
@@ -34,20 +36,8 @@ const Dashboard: React.FC = () => {
       try {
         const immigrationData = await fetchImmigrationData();
         setData(immigrationData);
-
-        setFilterOptions(prev => ({
-          ...prev,
-          control_point_ids: [0],
-          category_ids: [0, 1, 2],
-          direction_ids: [0]
-        }));
-        
-        setFilteredData(applyFilters(immigrationData, {
-          ...filterOptions,
-          control_point_ids: [0],
-          category_ids: [0, 1, 2],
-          direction_ids: [0]
-        }));
+        setFilterOptions(prev => ({...prev, defaultOptions}));
+        setFilteredData(applyFilters(immigrationData, {...filterOptions, ...defaultOptions}));
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
@@ -104,9 +94,9 @@ const Dashboard: React.FC = () => {
                     key={i18n.language}
                     data={filteredData}
                     groupMetric={filterOptions.group_by}
-                    selectedDirs={filterOptions.direction_ids}
-                    selectedControlPoints={filterOptions.control_point_ids}
-                    selectedCategories={filterOptions.category_ids}
+                    selectedDirIDs={filterOptions.direction_ids}
+                    selectedCpIDs={filterOptions.control_point_ids}
+                    selectedCatIDs={filterOptions.category_ids}
                   />
                 )}
               </div>

@@ -17,12 +17,6 @@ export const allControlPoints = [
 	"Tuen Mun Ferry Terminal",
 ] as const;
 
-export const allCategories = [
-	"hkResidents",
-	"mainlandVisitors",
-	"otherVisitors",
-] as const;
-
 export const directionList = ["arrival", "departure"] as const;
 
 export type ControlPointId = number; // 0~15
@@ -45,10 +39,16 @@ export function decodeDirection(id: DirectionId): string {
 	return directionList[id];
 }
 
+export const allCategories = [
+	"hkResidents",
+	"mainlandVisitors",
+	"otherVisitors",
+] as const;
+
 export function encodeCategory(cat: string): number {
 	return allCategories.indexOf(cat as any);
 }
 
 export function decodeCategory(cat: number): string {
-	return allControlPoints[cat];
+	return allCategories[cat];
 }

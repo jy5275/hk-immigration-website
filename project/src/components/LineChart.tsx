@@ -13,7 +13,7 @@ import {
 import { Line } from 'react-chartjs-2';
 import 'chartjs-adapter-date-fns';
 import { ImmigrationData } from '../types';
-import { allControlPoints, ControlPointId, DirectionId, GroupMetricId } from '../types/consts';
+import { allCategories, allControlPoints, ControlPointId, decodeCategory, DirectionId, encodeCategory, GroupMetricId } from '../types/consts';
 import { useTranslation } from 'react-i18next';
 
 ChartJS.register(
@@ -30,9 +30,9 @@ ChartJS.register(
 interface LineChartProps {
   data: ImmigrationData[];
   groupMetric: GroupMetricId;
-  selectedDirs: DirectionId[];
-  selectedCategories: number[];
-  selectedControlPoints: ControlPointId[];
+  selectedDirIDs: DirectionId[];
+  selectedCatIDs: number[];
+  selectedCpIDs: ControlPointId[];
 }
 
 const lineColors = [
@@ -49,7 +49,7 @@ const lineColors = [
   '#393b79', '#637939', '#8c6d31', '#843c39', '#7b4173' // 其他备用
 ];
 
-const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirs, selectedControlPoints, selectedCategories }) => {
+const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirIDs: selectedDirs, selectedCpIDs: selectedControlPoints, selectedCatIDs: selectedCategories }) => {
   const [chartData, setChartData] = useState({
     labels: [] as string[],
     datasets: [] as any[],
@@ -66,12 +66,12 @@ const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirs, 
     const dateSet = new Set<string>();
     data.forEach(item => dateSet.add(item.date))
     const dates = Array.from(dateSet).sort();
-    const selectedCatSet = new Set(selectedCategories);
+    const selectedCatIDsSet = new Set(selectedCategories);
     const getFilteredCategoryTotal = (item: ImmigrationData) => {
       let total = item.total;
-      if (!selectedCatSet.has(0)) total -= item.hk_residents;
-      if (!selectedCatSet.has(1)) total -= item.mainland_visitors;
-      if (!selectedCatSet.has(2)) total -= item.other_visitors;
+      if (!selectedCatIDsSet.has(0)) total -= item.hk_residents;
+      if (!selectedCatIDsSet.has(1)) total -= item.mainland_visitors;
+      if (!selectedCatIDsSet.has(2)) total -= item.other_visitors;
       return total
     };
 
@@ -100,9 +100,7 @@ const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirs, 
           }
           let prev = dateDir2Sum.get(item.date)!;
           prev[item.direction_id] = prev[item.direction_id] + getFilteredCategoryTotal(item);
-          console.log(item.date, prev)
         });
-        console.log(dateDir2Sum)
         if (selectedDirs.includes(0)) {
           datasets.push({
             label: t('arrival'),
@@ -130,21 +128,16 @@ const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirs, 
             dateCat2Sum.set(item.date, [0, 0, 0]);
           }
           const prev = dateCat2Sum.get(item.date)!;
-          if (selectedCatSet.has(0)) prev[0] += item.hk_residents;
-          if (selectedCatSet.has(1)) prev[1] += item.mainland_visitors;
-          if (selectedCatSet.has(2)) prev[2] += item.other_visitors;
+          if (selectedCatIDsSet.has(0)) prev[0] += item.hk_residents;
+          if (selectedCatIDsSet.has(1)) prev[1] += item.mainland_visitors;
+          if (selectedCatIDsSet.has(2)) prev[2] += item.other_visitors;
         });
 
-        const categoryConfig: { idx: number; labelKey: string }[] = [
-          { idx: 0, labelKey: 'hkResidents' },
-          { idx: 1, labelKey: 'mainlandVisitors' },
-          { idx: 2, labelKey: 'otherVisitors' }
-        ];
-
-        categoryConfig.forEach(({ idx, labelKey }) => {
-          if (selectedCatSet.has(idx)) {
+        allCategories.forEach(cat => {
+          const idx = encodeCategory(cat);
+          if (selectedCatIDsSet.has(idx)) {
             datasets.push({
-              label: t(labelKey),
+              label: t(cat),
               data: dates.map(date => (dateCat2Sum.get(date) ?? defaultTriplet)[idx]),
               borderColor: lineColors[idx],
               backgroundColor: lineColors[idx],

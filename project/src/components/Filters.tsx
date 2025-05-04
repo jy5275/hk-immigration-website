@@ -1,6 +1,6 @@
 import React from 'react';
 import { FilterOptions } from '../types';
-import { allControlPoints, DirectionId, encodeCategory, encodeControlPoint, encodeDirection, GroupMetricId } from '../types/consts';
+import { allCategories, allControlPoints, DirectionId, encodeCategory, encodeControlPoint, encodeDirection, GroupMetricId } from '../types/consts';
 import { useTranslation } from 'react-i18next';
 
 const styles = {
@@ -102,17 +102,15 @@ const Filters: React.FC<FiltersProps> = ({
       <div className={styles.filterBg}>
         <h3 className={`${styles.filterTitleText} text-base font-medium mb-2`}>{t('passengerCategories')}</h3>
         <div className="space-y-1.5">
-          {[{ id: 'hkResidents', label: 'Hong Kong Residents' },
-          { id: 'mainlandVisitors', label: 'Mainland Visitors' },
-          { id: 'otherVisitors', label: 'Other Visitors' }].map(category => {
-            const isSelected = filterOptions.category_ids.includes(encodeCategory(category.id));
+          {allCategories.map(category => {
+            const isSelected = filterOptions.category_ids.includes(encodeCategory(category));
             return (
-              <label key={category.id} className={`flex items-center space-x-1.5 cursor-pointer text-sm ${styles.hoverEffect}`}>
+              <label key={category} className={`flex items-center space-x-1.5 cursor-pointer text-sm ${styles.hoverEffect}`}>
                 <input type="checkbox" checked={isSelected}
-                  onChange={() => handleCategoryChange(encodeCategory(category.id))}
+                  onChange={() => handleCategoryChange(encodeCategory(category))}
                   name="category"
                   className={`${isSelected ? styles.radioSelected : styles.radioUnselected}`} />
-                <span className={`${isSelected ? styles.textSelected : styles.textUnselected}`}>{t(`${category.id}`)}</span>
+                <span className={`${isSelected ? styles.textSelected : styles.textUnselected}`}>{t(`${category}`)}</span>
               </label>
             );
           })}
