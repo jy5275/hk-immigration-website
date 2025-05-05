@@ -125,7 +125,7 @@ const Filters: React.FC<FiltersProps> = ({
 
       <div className={styles.filterBg}>
         <h3 className={`${styles.filterTitleText} text-base font-medium mb-2`}>{t('controlPoints')}</h3>
-        <div className="max-h-80 overflow-y-auto pr-1 rounded-md bg-white">
+        <div className={`overflow-y-auto pr-1 rounded-md bg-white ${CanUseAvgMode(filterOptions.date_range) ? 'max-h-72' : 'max-h-80'}`}>
           <div className={`${styles.filterBg} p-1 space-y-1.5`}>
             <label className={`flex items-center space-x-1.5 cursor-pointer border-b border-gray-200 pb-1 mb-1 text-sm ${styles.hoverEffect}`}>
               <input
