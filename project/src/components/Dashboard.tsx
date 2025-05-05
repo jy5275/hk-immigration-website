@@ -82,7 +82,7 @@ const Dashboard: React.FC = () => {
             onDateRangeChange={(dateRange) => handleFilterChange({ date_range: dateRange })}
           />
           
-          <div className="mt-6 flex flex-col md:flex-row gap-6">
+          <div className="mt-6 flex flex-col md:flex-row gap-6 items-stretch">
             <div className="md:w-auto min-w-[260px] max-w-sm">
               <Filters 
                 filterOptions={filterOptions}
@@ -90,8 +90,8 @@ const Dashboard: React.FC = () => {
               />
             </div>
             
-            <div className="md:flex-1">
-              <div className="h-[715px] w-full">
+            <div className="md:flex-1 flex">
+              <div className="w-full">
                 {loading ? (
                   <div className="h-full flex items-center justify-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
