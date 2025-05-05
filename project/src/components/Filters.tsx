@@ -1,26 +1,12 @@
 import React from 'react';
-import { FilterOptions } from '../types';
-import { allCategories, allControlPoints, DirectionId, encodeCategory, encodeControlPoint, encodeDirection, GroupMetricId } from '../types/consts';
+import { CanUseAvgMode, FilterOptions } from '../types';
+import { allCategories, allControlPoints, DirectionId, encodeCategory, encodeControlPoint, encodeDirection, GroupMetricId, styles } from '../types/consts';
 import { useTranslation } from 'react-i18next';
-
-const styles = {
-  hoverEffect: "transform transition-transform duration-200 hover:scale-105 active:scale-95 hover:shadow-md",
-  checkBoxBasic: "rounded text-blue-600 focus:ring-blue-500 h-4 w-4 disabled:opacity-50",
-  filterTitleText: "font-semibold font-medium text-gray-700",
-  textSelected: "text-blue-600 font-semibold",
-  textUnselected: "text-gray-700",
-  radioSelected: "h-4 w-4 rounded-full border-2 border-blue-600",
-  radioUnselected: "h-4 w-4 rounded-full border-2 border-gray-400",
-  primaryButton: "bg-blue-600 text-white px-4 py-2 rounded-md",
-  secondaryButton: "bg-gray-200 text-gray-700 px-4 py-2 rounded-md",
-  filterBg: "bg-gray-100 p-3 rounded-md",
-};
 
 interface FiltersProps {
   filterOptions: FilterOptions;
   onFilterChange: (newFilters: Partial<FilterOptions>) => void;
 }
-
 const Filters: React.FC<FiltersProps> = ({ 
   filterOptions, 
   onFilterChange 
@@ -35,6 +21,10 @@ const Filters: React.FC<FiltersProps> = ({
 
   const handleGroupMetricChange = (groupBy: GroupMetricId) => {
     onFilterChange({ group_by: groupBy });
+  };
+
+  const handleUse7DaysAvgChange = () => {
+    onFilterChange({ use7DaysAvg: !filterOptions.use7DaysAvg });
   };
 
   const handleControlPointChange = (controlPointID: number) => {
@@ -63,6 +53,22 @@ const Filters: React.FC<FiltersProps> = ({
 
   return (
     <div className="space-y-3">
+      { CanUseAvgMode(filterOptions.date_range) && (
+        <div className={styles.filterBg}>
+          <div className="flex items-center space-x-4">
+            <label className={`flex items-center space-x-1.5 cursor-pointer text-sm ${styles.hoverEffect}`}>
+              <input
+                id="toggle-average"
+                type="checkbox"
+                checked={filterOptions.use7DaysAvg === true}
+                onChange={() => handleUse7DaysAvgChange()}
+                className={`${filterOptions.use7DaysAvg === true ? styles.radioSelected : styles.radioUnselected}`} />
+              <span className={`${filterOptions.use7DaysAvg === true ? styles.textSelected : styles.textUnselected}`}>{t('avg')}</span>
+            </label>
+          </div>
+        </div>
+      )}
+
       <div className={styles.filterBg}>
         <h3 className={`${styles.filterTitleText} text-base font-medium mb-2`}>{t('mode')}</h3>
         <div className="grid grid-cols-2 gap-x-4 gap-y-1">

@@ -3,7 +3,7 @@ import LineChart from './LineChart';
 import Filters from './Filters';
 import DateRangeSelector from './DateRangeSelector';
 import { fetchImmigrationData } from '../services/databaseService';
-import { ImmigrationData, FilterOptions } from '../types';
+import { ImmigrationData, FilterOptions, CanUseAvgMode } from '../types';
 import DataSummary from './DataSummary';
 import Map from './Map';
 import { useTranslation } from 'react-i18next';
@@ -25,7 +25,8 @@ const Dashboard: React.FC = () => {
     date_range: {
       startDate: defaultStartDate,
       endDate: defaultEndDate
-    }
+    },
+    use7DaysAvg: false
   };
 
   const [filterOptions, setFilterOptions] = useState<FilterOptions>(defaultOptions);
@@ -59,6 +60,12 @@ const Dashboard: React.FC = () => {
   };
 
   const handleFilterChange = (newFilters: Partial<FilterOptions>) => {
+    if (newFilters.date_range?.startDate && newFilters.date_range?.endDate) {
+      if (!CanUseAvgMode(newFilters.date_range)) {
+        newFilters.use7DaysAvg = false;
+      }
+    }
+  
     const updatedFilters = { ...filterOptions, ...newFilters };
     setFilterOptions(updatedFilters);
     setFilteredData(applyFilters(data, updatedFilters));
@@ -97,13 +104,13 @@ const Dashboard: React.FC = () => {
                     selectedDirIDs={filterOptions.direction_ids}
                     selectedCpIDs={filterOptions.control_point_ids}
                     selectedCatIDs={filterOptions.category_ids}
+                    use7DaysAvg={filterOptions.use7DaysAvg}
                   />
                 )}
               </div>
             </div>
           </div>
         </div>
-        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Map selectedPoints={filterOptions.control_point_ids} />
           <DataSummary data={filteredData} selectedCategories={filterOptions.category_ids} />

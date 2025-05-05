@@ -16,12 +16,18 @@ export interface DateRange {
   endDate: Date;
 }
 
+export function CanUseAvgMode(dateRange: DateRange): boolean {
+  const SHOW_7_DAYS_AVG_THRESHOLD = 1000 * 60 * 60 * 24 * 30 * 6; // six months
+  return dateRange.endDate.getTime() - dateRange.startDate.getTime() >= SHOW_7_DAYS_AVG_THRESHOLD
+}
+
 export interface FilterOptions {
   group_by: GroupMetricId;
   direction_ids: DirectionId[];
   control_point_ids: ControlPointId[];
   category_ids: number[];
   date_range: DateRange;
+  use7DaysAvg: boolean;
 }
 
 export interface AggregatedData {

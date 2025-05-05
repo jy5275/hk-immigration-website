@@ -3,7 +3,7 @@ import { ImmigrationData } from '../types';
 import { BarChart2, Users } from 'lucide-react';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { ControlPointId, decodeControlPoint } from '../types/consts';
+import { allCategories, ControlPointId, decodeControlPoint } from '../types/consts';
 import { useTranslation } from 'react-i18next';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -63,7 +63,7 @@ const DataSummary: React.FC<DataSummaryProps> = ({ data, selectedCategories }) =
   }, [data]);
 
   const pieChartData = {
-    labels: [t('hkResidents'), t('mainlandVisitors'), t('otherVisitors')],
+    labels: allCategories.map(item => t(`${item}`)),
     datasets: [
       {
         data: [

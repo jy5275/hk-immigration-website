@@ -33,6 +33,7 @@ interface LineChartProps {
   selectedDirIDs: DirectionId[];
   selectedCatIDs: number[];
   selectedCpIDs: ControlPointId[];
+  use7DaysAvg: boolean;
 }
 
 const lineColors = [
@@ -49,7 +50,26 @@ const lineColors = [
   '#393b79', '#637939', '#8c6d31', '#843c39', '#7b4173' // 其他备用
 ];
 
-const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirIDs: selectedDirs, selectedCpIDs: selectedControlPoints, selectedCatIDs: selectedCategories }) => {
+function movingAverage(data: number[], windowSize: number = 7): number[] {
+  const result: number[] = [];
+  for (let i = 0; i < data.length; i++) {
+    const start = Math.max(0, i - windowSize + 1);
+    const window = data.slice(start, i + 1);
+    const avg = window.reduce((sum, val) => sum + val, 0) / window.length;
+    result.push(Math.round(avg)); // 可选：四舍五入为整数
+  }
+  return result;
+}
+
+const LineChart: React.FC<LineChartProps> = (
+  {
+    data,
+    groupMetric,
+    selectedDirIDs,
+    selectedCpIDs,
+    selectedCatIDs,
+    use7DaysAvg,
+  }) => {
   const [chartData, setChartData] = useState({
     labels: [] as string[],
     datasets: [] as any[],
@@ -66,7 +86,7 @@ const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirIDs
     const dateSet = new Set<string>();
     data.forEach(item => dateSet.add(item.date))
     const dates = Array.from(dateSet).sort();
-    const selectedCatIDsSet = new Set(selectedCategories);
+    const selectedCatIDsSet = new Set(selectedCatIDs);
     const getFilteredCategoryTotal = (item: ImmigrationData) => {
       let total = item.total;
       if (!selectedCatIDsSet.has(0)) total -= item.hk_residents;
@@ -101,7 +121,7 @@ const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirIDs
           let prev = dateDir2Sum.get(item.date)!;
           prev[item.direction_id] = prev[item.direction_id] + getFilteredCategoryTotal(item);
         });
-        if (selectedDirs.includes(0)) {
+        if (selectedDirIDs.includes(0)) {
           datasets.push({
             label: t('arrival'),
             data: dates.map(date => (dateDir2Sum.get(date) ?? defaultCouple)[0]),
@@ -109,7 +129,7 @@ const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirIDs
             backgroundColor: lineColors[0],
             tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2});
         }
-        if (selectedDirs.includes(1)) {
+        if (selectedDirIDs.includes(1)) {
           datasets.push({
             label: t('departure'),
             data: dates.map(date => (dateDir2Sum.get(date) ?? defaultCouple)[1]),
@@ -156,7 +176,7 @@ const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirIDs
           const prevDate: Map<ControlPointId, number> = dateCp2Sum.get(item.date)!;
           prevDate.set(item.control_point_id, (prevDate.get(item.control_point_id) ?? 0) + getFilteredCategoryTotal(item));
         });
-        const selectedCpSet = new Set(selectedControlPoints);        
+        const selectedCpSet = new Set(selectedCpIDs);        
         allControlPoints.forEach(item => {
           const idx = allControlPoints.indexOf(item);
           if (selectedCpSet.has(idx)) {
@@ -168,6 +188,11 @@ const LineChart: React.FC<LineChartProps> = ({ data, groupMetric, selectedDirIDs
               tension: 0.3, pointRadius: 1, pointHoverRadius: 5, borderWidth: 2,});
           }
         })
+    }
+    if (use7DaysAvg) {
+      datasets.forEach(item => {
+        item.data = movingAverage(item.data)
+      });
     }
 
     setChartData({ labels: dates, datasets });
