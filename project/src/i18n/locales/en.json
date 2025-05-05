@@ -11,17 +11,20 @@
 	"totalPassengers": "Total Passengers",
 	"topControlPoint": "Top Control Point",
 	"passengerCategories": "Passenger Categories",
-	"hkResidents": "HK Residents",
-	"mainlandVisitors": "Mainland Visitors",
-	"otherVisitors": "Other Visitors",
 	"numberOfPassengers": "Number of Passengers",
 	"date": "Date",
 	"all": "All",
+	"avg": "Show 7-day Average",
 	"groupMetric": {
 		"all": "Sum",
 		"byDir": "Directions",
 		"byCat": "Categories",
 		"byCp": "Control Points"
+	},
+	"category": {
+		"hkResidents": "HK Residents",
+		"mainlandVisitors": "Mainland Visitors",
+		"otherVisitors": "Other Visitors"
 	},
 	"dateRange": {
 	  "from": "From",

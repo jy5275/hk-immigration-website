@@ -40,9 +40,9 @@ export function decodeDirection(id: DirectionId): string {
 }
 
 export const allCategories = [
-	"hkResidents",
-	"mainlandVisitors",
-	"otherVisitors",
+	"category.hkResidents",
+	"category.mainlandVisitors",
+	"category.otherVisitors",
 ] as const;
 
 export function encodeCategory(cat: string): number {
@@ -52,3 +52,16 @@ export function encodeCategory(cat: string): number {
 export function decodeCategory(cat: number): string {
 	return allCategories[cat];
 }
+
+export const styles = {
+  hoverEffect: "transform transition-transform duration-200 hover:scale-105 active:scale-95 hover:shadow-md",
+  checkBoxBasic: "rounded text-blue-600 focus:ring-blue-500 h-4 w-4 disabled:opacity-50",
+  filterTitleText: "font-semibold font-medium text-gray-700",
+  textSelected: "text-blue-600 font-semibold",
+  textUnselected: "text-gray-700",
+  radioSelected: "h-4 w-4 rounded-full border-2 border-blue-600",
+  radioUnselected: "h-4 w-4 rounded-full border-2 border-gray-400",
+  primaryButton: "bg-blue-600 text-white px-4 py-2 rounded-md",
+  secondaryButton: "bg-gray-200 text-gray-700 px-4 py-2 rounded-md",
+  filterBg: "bg-gray-100 p-3 rounded-md",
+};
