@@ -52,11 +52,14 @@ const lineColors = [
 
 function movingAverage(data: number[], windowSize: number = 7): number[] {
   const result: number[] = [];
+  const fwdStep = windowSize / 2;         // 3
+  const backStep = windowSize - fwdStep;  // 4
   for (let i = 0; i < data.length; i++) {
-    const start = Math.max(0, i - windowSize + 1);
-    const window = data.slice(start, i + 1);
+    const start = Math.max(0, i - backStep + 1);
+    const end = Math.min(data.length - 1, i + fwdStep);
+    const window = data.slice(start, end + 1);
     const avg = window.reduce((sum, val) => sum + val, 0) / window.length;
-    result.push(Math.round(avg)); // 可选：四舍五入为整数
+    result.push(Math.round(avg));
   }
   return result;
 }
