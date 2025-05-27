@@ -18,8 +18,6 @@ const DataSummary: React.FC<DataSummaryProps> = ({ data, selectedCategories }) =
   const summary = useMemo(() => {
     if (data.length === 0) {
       return {
-        total: 0,
-        totalFlow: 0,
         topControlPoint: 'N/A',
         topControlPointCount: 0,
         hk: 0,
@@ -28,32 +26,27 @@ const DataSummary: React.FC<DataSummaryProps> = ({ data, selectedCategories }) =
       };
     }
 
-    let total = 0;
     let hk = 0;
     let ml = 0;
     let other = 0;
-    if (selectedCategories.includes(0)) {
-      hk = data.reduce((sum, item) => sum + item.hk_residents, 0);
-      total += hk;
-    }
-    if (selectedCategories.includes(1)) {
-      ml = data.reduce((sum, item) => sum + item.mainland_visitors, 0);
-      total += ml;
-    }
-    if (selectedCategories.includes(2)) {
-      other = data.reduce((sum, item) => sum + item.other_visitors, 0);
-      total += other;
-    }
-    const controlPointID2Counts = data.reduce((acc, item) => {
-      acc[item.control_point_id] = (acc[item.control_point_id] || 0) + item.total;
-      return acc;
-    }, {} as Record<ControlPointId, number>);
+    const controlPointID2Counts: Record<ControlPointId, number> = {};
+    data.forEach(item => {
+      if (selectedCategories.includes(0)) {
+        controlPointID2Counts[item.control_point_id] = (controlPointID2Counts[item.control_point_id] || 0) + item.hk_residents;
+        hk += item.hk_residents;  
+      }
+      if (selectedCategories.includes(1)) {
+        controlPointID2Counts[item.control_point_id] = (controlPointID2Counts[item.control_point_id] || 0) + item.mainland_visitors;
+        ml += item.mainland_visitors;  
+      }
+      if (selectedCategories.includes(2)) {
+        controlPointID2Counts[item.control_point_id] = (controlPointID2Counts[item.control_point_id] || 0) + item.other_visitors;
+        other += item.other_visitors;  
+      }
+    })
 
     const topControlPointID2Count = Object.entries(controlPointID2Counts).sort((a, b) => b[1] - a[1])[0] || ['-1', 0];
-    
     return {
-      total: total,
-      totalFlow: total,
       topControlPoint: decodeControlPoint(parseInt(topControlPointID2Count[0], 10)),
       topControlPointCount: topControlPointID2Count[1],
       hk: hk,
@@ -66,11 +59,7 @@ const DataSummary: React.FC<DataSummaryProps> = ({ data, selectedCategories }) =
     labels: allCategories.map(item => t(`${item}`)),
     datasets: [
       {
-        data: [
-          summary.hk,
-          summary.ml,
-          summary.other,
-        ],
+        data: [summary.hk, summary.ml, summary.other],
         backgroundColor: [
           'rgb(53, 162, 235)',
           'rgb(255, 99, 132)',
@@ -132,7 +121,7 @@ const DataSummary: React.FC<DataSummaryProps> = ({ data, selectedCategories }) =
             </div>
             <div>
               <p className="text-sm text-blue-700 font-medium">{t('totalPassengers')}</p>
-              <p className="text-xl font-semibold text-blue-900">{formatNumber(summary.total)}</p>
+              <p className="text-xl font-semibold text-blue-900">{formatNumber(summary.hk + summary.ml + summary.other)}</p>
             </div>
           </div>
         </div>
