@@ -37,7 +37,7 @@ export default {
   
 		const data = {
 			"immi_api_data.length": lines.length,
-			"immi_api_data.line[0]": lines[1],
+			"immi_api_data.last_line": lines[lines.length - 2],
 			"db_recent_100_records": result
 		}
 		return new Response(JSON.stringify(data), {
