@@ -29,8 +29,8 @@ export default {
 		let result: Record<string, any> | null;
 		try {		
 			result = await env.hk_immi_db.prepare(
-				`SELECT id, date, control_point, direction, hk_residents, mainland_visitors, other_visitors, total FROM immigration limit 1`
-			).first();
+				`SELECT id, date, control_point, direction, hk_residents, mainland_visitors, other_visitors, total FROM immigration ORDER BY date DESC, control_point, direction LIMIT 100`
+			).all();
 		} catch (err) {
 			return new Response("D1 query failed: " + err, { status: 500 });
 	  	}
@@ -38,7 +38,7 @@ export default {
 		const data = {
 			"immi_api_data.length": lines.length,
 			"immi_api_data.line[0]": lines[1],
-			"db.firstline": result
+			"db_recent_100_records": result
 		}
 		return new Response(JSON.stringify(data), {
 			headers: {
