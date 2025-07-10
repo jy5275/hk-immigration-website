@@ -16,7 +16,9 @@
  */
 export default {
 	async fetch(req, env: Env) {
-		let resp = await fetch('https://res.data.gov.hk/api/get-download-file?name=https%3A%2F%2Fwww.immd.gov.hk%2Fopendata%2Feng%2Ftransport%2Fimmigration_clearance%2Fstatistics_on_daily_passenger_traffic.csv');
+		// This URL seems invalid since July 7 2025
+		// let resp = await fetch('https://res.data.gov.hk/api/get-download-file?name=https%3A%2F%2Fwww.immd.gov.hk%2Fopendata%2Feng%2Ftransport%2Fimmigration_clearance%2Fstatistics_on_daily_passenger_traffic.csv');
+		let resp = await fetch('https://www.immd.gov.hk/opendata/eng/transport/immigration_clearance/statistics_on_daily_passenger_traffic.csv');
 		if (!resp.ok) {
 			console.error(`Failed to download: ${resp.status}`);
 			return new Response("hk immi department website API returns " + resp.status, { status: 500 });
@@ -34,8 +36,8 @@ export default {
 	  	}
   
 		const data = {
-			"data.length": lines.length,
-			"data.line[0]": lines[1],
+			"immi_api_data.length": lines.length,
+			"immi_api_data.line[0]": lines[1],
 			"db.firstline": result
 		}
 		return new Response(JSON.stringify(data), {
@@ -46,7 +48,9 @@ export default {
 		},
 
 	async scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
-		let resp = await fetch('https://res.data.gov.hk/api/get-download-file?name=https%3A%2F%2Fwww.immd.gov.hk%2Fopendata%2Feng%2Ftransport%2Fimmigration_clearance%2Fstatistics_on_daily_passenger_traffic.csv');
+		// This URL seems invalid since July 7 2025
+		// let resp = await fetch('https://res.data.gov.hk/api/get-download-file?name=https%3A%2F%2Fwww.immd.gov.hk%2Fopendata%2Feng%2Ftransport%2Fimmigration_clearance%2Fstatistics_on_daily_passenger_traffic.csv');
+		let resp = await fetch('https://www.immd.gov.hk/opendata/eng/transport/immigration_clearance/statistics_on_daily_passenger_traffic.csv');
 		if (!resp.ok) {
 			console.error(`Failed to download: ${resp.status}`);
 			return;
@@ -70,7 +74,7 @@ export default {
 				continue;
 			}
 			const dateParts = record[0].split("-");
-			const date = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+			const date = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; // 09-07-2025 -> 2025-07-09
 			const control_point = record[1];
 			const direction = record[2];
 			const hk = parseInt(record[3].replace(/,/g, "")) || 0;
@@ -85,6 +89,7 @@ export default {
 		// and on bound parameters is 100 (https://developers.cloudflare.com/d1/platform/limits/)
 		dataRows = dataRows.slice(dataRows.length - 630)
 
+		// UNIQUE INDEX: <date, control_point, direction>;
 		const batchSize = 13; // should ensure batchSize * 7 <= 100
 		for (let i = 0; i < dataRows.length; i += batchSize) {
 			const batch = dataRows.slice(i, i + batchSize);

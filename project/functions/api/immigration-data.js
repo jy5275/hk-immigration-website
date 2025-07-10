@@ -34,7 +34,7 @@ export async function onRequest(context) {
 
   try {
     const ps = context.env.hk_immi_db.prepare(`
-      SELECT id, date, control_point, direction, hk_residents, mainland_visitors, other_visitors, total FROM immigration`);
+      SELECT id, date, control_point, direction, hk_residents, mainland_visitors, other_visitors, total FROM immigration ORDER BY date DESC, control_point, direction LIMIT 100`);
     const result = await ps.all();
     for (const row of result.results) {
       data.push({
