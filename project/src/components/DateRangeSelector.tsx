@@ -43,6 +43,7 @@ const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
     { label: '2022', value: '2022' },
     { label: '2023', value: '2023' },
     { label: '2024', value: '2024' },
+    { label: '2025', value: '2025' },
     { label: t('dateRange.allTime'), value: 'all' },
   ];
 
@@ -90,6 +91,10 @@ const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
       case '2024':
         startDate = new Date("2024-01-01");
         endDate = new Date("2024-12-31");
+        break;
+      case '2025':
+        startDate = new Date("2025-01-01");
+        endDate = new Date("2025-12-31");
         break;
       case 'all':
         startDate = new Date('2020-01-24');
