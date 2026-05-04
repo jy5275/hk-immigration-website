@@ -13,7 +13,7 @@ import pandas as pd
 # - Express Rail Link West Kowloon
 # - Heung Yuen Wai
 # - Lok Ma Chau
-# - Macau Ferry Terminal
+# - Macao Ferry Terminal
 # - Man Kam To
 # - China Ferry Terminal
 # - Kai Tak Cruise Terminal
@@ -31,7 +31,7 @@ data_by_cp_dir = defaultdict(list) # Data structure: {(control_point, direction)
 
 def read_from_sqlite(): 
     points_list = ["Lo Wu","Lok Ma Chau Spur Line","Airport","Shenzhen Bay","Hong Kong-Zhuhai-Macao Bridge","Express Rail Link West Kowloon"]
-    # points_list = ["Heung Yuen Wai","Lok Ma Chau","Macau Ferry Terminal"]
+    # points_list = ["Heung Yuen Wai","Lok Ma Chau","Macao Ferry Terminal"]
     # points_list = ["Man Kam To","China Ferry Terminal","Kai Tak Cruise Terminal","Harbour Control"]
 
     for cp in points_list:
@@ -92,7 +92,7 @@ def draw_seven_days():
 def draw_pie_chart():
     fig, axs = plt.subplots(3, 3, figsize=(16, 10))
     axs = axs.flatten()
-    points_list = ["Lo Wu","Lok Ma Chau Spur Line","Airport","Shenzhen Bay","Hong Kong-Zhuhai-Macao Bridge","Express Rail Link West Kowloon", "Heung Yuen Wai","Lok Ma Chau","Macau Ferry Terminal"]
+    points_list = ["Lo Wu","Lok Ma Chau Spur Line","Airport","Shenzhen Bay","Hong Kong-Zhuhai-Macao Bridge","Express Rail Link West Kowloon", "Heung Yuen Wai","Lok Ma Chau","Macao Ferry Terminal"]
 
     for idx, cp in enumerate(points_list):
         cursor.execute('''

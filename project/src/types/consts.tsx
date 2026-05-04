@@ -7,7 +7,7 @@ export const allControlPoints = [
 	"Express Rail Link West Kowloon",
 	"Heung Yuen Wai",
 	"Lok Ma Chau",
-	"Macau Ferry Terminal",
+	"Macao Ferry Terminal",
 	"Man Kam To",
 	"China Ferry Terminal",
 	"Kai Tak Cruise Terminal",

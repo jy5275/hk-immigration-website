@@ -7,7 +7,7 @@ const controlPointMap = {
   "Express Rail Link West Kowloon": 5,
   "Heung Yuen Wai":                 6,
   "Lok Ma Chau":                    7,
-  "Macau Ferry Terminal":           8,
+  "Macao Ferry Terminal":           8,
   "Man Kam To":                     9,
   "China Ferry Terminal":           10,
   "Kai Tak Cruise Terminal":        11,

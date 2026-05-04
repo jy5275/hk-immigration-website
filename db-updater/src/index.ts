@@ -75,7 +75,7 @@ export default {
 			}
 			const dateParts = record[0].split("-");
 			const date = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; // 09-07-2025 -> 2025-07-09
-			const control_point = record[1];
+			const control_point = record[1] === 'Macau Ferry Terminal' ? 'Macao Ferry Terminal' : record[1];
 			const direction = record[2];
 			const hk = parseInt(record[3].replace(/,/g, "")) || 0;
 			const ml = parseInt(record[4].replace(/,/g, "")) || 0;
