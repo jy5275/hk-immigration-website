@@ -3,8 +3,10 @@ import { ImmigrationData } from '../types';
 function generateMockImmigrationData(): ImmigrationData[] {
 	const controlPoints = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
   
-	const startDate = new Date(2020, 0, 24); // 2020-01-24
-	const endDate = new Date(2025, 3, 26);   // 2025-04-26
+	const endDate = new Date();
+	endDate.setHours(0, 0, 0, 0);
+	const startDate = new Date(endDate);
+	startDate.setFullYear(startDate.getFullYear() - 5);
   
 	const mockData: ImmigrationData[] = [];
 	let idCounter = 1;

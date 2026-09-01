@@ -37,8 +37,8 @@ const Dashboard: React.FC = () => {
       try {
         const immigrationData = await fetchImmigrationData();
         setData(immigrationData);
-        setFilterOptions(prev => ({...prev, defaultOptions}));
-        setFilteredData(applyFilters(immigrationData, {...filterOptions, ...defaultOptions}));
+        setFilterOptions({...filterOptions, ...defaultOptions});
+        setFilteredData(applyFilters(immigrationData, defaultOptions));
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
