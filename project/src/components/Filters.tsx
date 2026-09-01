@@ -44,10 +44,10 @@ const Filters: React.FC<FiltersProps> = ({
     });
   };
 
-  const handleCategoryChange = (categoryIDs: number) => {
-    const newCategories = filterOptions.category_ids.includes(categoryIDs)
-      ? filterOptions.category_ids.filter(c => c !== categoryIDs)
-      : [...filterOptions.category_ids, categoryIDs];
+  const handleCategoryChange = (categoryID: number) => {
+    const newCategories = filterOptions.category_ids.includes(categoryID)
+      ? filterOptions.category_ids.filter(c => c !== categoryID)
+      : [...filterOptions.category_ids, categoryID];
     onFilterChange({ category_ids: newCategories });
   };
 
@@ -132,7 +132,6 @@ const Filters: React.FC<FiltersProps> = ({
                 type="checkbox"
                 checked={allControlPoints.length === filterOptions.control_point_ids.length}
                 onChange={handleSelectAllControlPoints}
-                disabled={filterOptions.category_ids.length > 100}
                 className={`${styles.checkBoxBasic}`}
               />
               <span className={`font-medium ${allControlPoints.length === filterOptions.control_point_ids.length
@@ -146,7 +145,6 @@ const Filters: React.FC<FiltersProps> = ({
                     type="checkbox"
                     checked={isSelected}
                     onChange={() => handleControlPointChange(encodeControlPoint(point))}
-                    disabled={filterOptions.category_ids.length > 100}
                     className={`${styles.checkBoxBasic}`}
                   />
                   <span className={`${isSelected ? styles.textSelected : styles.textUnselected}`}>
