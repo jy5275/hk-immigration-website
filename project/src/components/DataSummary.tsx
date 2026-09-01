@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
+import type { TooltipItem } from 'chart.js';
 import { ImmigrationData } from '../types';
 import { BarChart2, Users } from 'lucide-react';
 import { Pie } from 'react-chartjs-2';
@@ -13,50 +14,44 @@ interface DataSummaryProps {
   selectedCategories: number[];
 }
 
-const DataSummary: React.FC<DataSummaryProps> = ({ data, selectedCategories }) => {
+const DataSummary = ({ data, selectedCategories }: DataSummaryProps) => {
   const { t } = useTranslation();
-  const summary = useMemo(() => {
-    if (data.length === 0) {
-      return {
-        topControlPoint: 'N/A',
-        topControlPointCount: 0,
-        hk: 0,
-        ml: 0,
-        other: 0,
-      };
-    }
 
+  const summary = useMemo(() => {
     let hk = 0;
     let ml = 0;
     let other = 0;
-    const controlPointID2Counts: Record<ControlPointId, number> = {};
-    data.forEach(item => {
+    const cpCounts = new Map<ControlPointId, number>();
+
+    for (const item of data) {
       if (selectedCategories.includes(0)) {
-        controlPointID2Counts[item.control_point_id] = (controlPointID2Counts[item.control_point_id] || 0) + item.hk_residents;
-        hk += item.hk_residents;  
+        cpCounts.set(item.control_point_id, (cpCounts.get(item.control_point_id) ?? 0) + item.hk_residents);
+        hk += item.hk_residents;
       }
       if (selectedCategories.includes(1)) {
-        controlPointID2Counts[item.control_point_id] = (controlPointID2Counts[item.control_point_id] || 0) + item.mainland_visitors;
-        ml += item.mainland_visitors;  
+        cpCounts.set(item.control_point_id, (cpCounts.get(item.control_point_id) ?? 0) + item.mainland_visitors);
+        ml += item.mainland_visitors;
       }
       if (selectedCategories.includes(2)) {
-        controlPointID2Counts[item.control_point_id] = (controlPointID2Counts[item.control_point_id] || 0) + item.other_visitors;
-        other += item.other_visitors;  
+        cpCounts.set(item.control_point_id, (cpCounts.get(item.control_point_id) ?? 0) + item.other_visitors);
+        other += item.other_visitors;
       }
-    })
+    }
 
-    const topControlPointID2Count = Object.entries(controlPointID2Counts).sort((a, b) => b[1] - a[1])[0] || ['-1', 0];
-    return {
-      topControlPoint: decodeControlPoint(parseInt(topControlPointID2Count[0], 10)),
-      topControlPointCount: topControlPointID2Count[1],
-      hk: hk,
-      ml: ml,
-      other: other,
-    };
-  }, [data]);
+    let topControlPoint: ControlPointId | null = null;
+    let topCount = 0;
+    for (const [cp, count] of cpCounts) {
+      if (count > topCount) {
+        topCount = count;
+        topControlPoint = cp;
+      }
+    }
+
+    return { topControlPoint, hk, ml, other };
+  }, [data, selectedCategories]);
 
   const pieChartData = {
-    labels: allCategories.map(item => t(`${item}`)),
+    labels: allCategories.map((item) => t(item)),
     datasets: [
       {
         data: [summary.hk, summary.ml, summary.other],
@@ -90,8 +85,8 @@ const DataSummary: React.FC<DataSummaryProps> = ({ data, selectedCategories }) =
       },
       tooltip: {
         callbacks: {
-          label: (context: any) => {
-            const value = context.raw;
+          label: (context: TooltipItem<'pie'>) => {
+            const value = context.raw as number;
             const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
             const percentage = ((value / total) * 100).toFixed(1);
             return `${context.label}: ${new Intl.NumberFormat('en-US').format(value)} (${percentage}%)`;
@@ -112,7 +107,7 @@ const DataSummary: React.FC<DataSummaryProps> = ({ data, selectedCategories }) =
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
       <h2 className="text-lg font-medium text-gray-800 mb-4">{t('dataSummary')}</h2>
-      
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
           <div className="flex items-center space-x-3">
@@ -125,7 +120,7 @@ const DataSummary: React.FC<DataSummaryProps> = ({ data, selectedCategories }) =
             </div>
           </div>
         </div>
-                
+
         <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-100">
           <div className="flex items-center space-x-3">
             <div className="bg-emerald-100 p-2 rounded-full">
@@ -133,8 +128,8 @@ const DataSummary: React.FC<DataSummaryProps> = ({ data, selectedCategories }) =
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm text-emerald-700 font-medium">{t('topControlPoint')}</p>
-              <p className="text-l leading-tight font-semibold text-emerald-900" title={summary.topControlPoint}>
-                {t(`controlPointNames.${summary.topControlPoint}`)}
+              <p className="text-l leading-tight font-semibold text-emerald-900">
+                {summary.topControlPoint !== null ? t(`controlPointNames.${decodeControlPoint(summary.topControlPoint)}`) : '—'}
               </p>
             </div>
           </div>
