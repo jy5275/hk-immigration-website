@@ -1,9 +1,9 @@
 const controlPointMap = {
-	"Lo Wu":                          0,
-	"Lok Ma Chau Spur Line":          1,
+  "Lo Wu":                          0,
+  "Lok Ma Chau Spur Line":          1,
   "Airport":                        2,
-	"Shenzhen Bay":                   3,
-	"Hong Kong-Zhuhai-Macao Bridge":  4,
+  "Shenzhen Bay":                   3,
+  "Hong Kong-Zhuhai-Macao Bridge":  4,
   "Express Rail Link West Kowloon": 5,
   "Heung Yuen Wai":                 6,
   "Lok Ma Chau":                    7,
@@ -18,26 +18,24 @@ const controlPointMap = {
 };
 
 function encodeControlPoint(name) {
-  if (name in controlPointMap) {
-    return controlPointMap[name];
-  } else {
-    return -1;
-  }
+  return controlPointMap[name] ?? -1;
 }
-  
+
 function encodeDirection(dir) {
-	return dir === "Arrival" ? 0 : 1;
+  return dir === "Departure" ? 1 : 0;
 }
 
-export async function onRequest(context) {  
-  let data = [];
-
+export async function onRequest(context) {
   try {
-    const ps = context.env.hk_immi_db.prepare(`
-      SELECT id, date, control_point, direction, hk_residents, mainland_visitors, other_visitors, total FROM immigration`);
-    const result = await ps.all();
-    for (const row of result.results) {
-      data.push({
+    const result = await context.env.hk_immi_db
+      .prepare(
+        `SELECT id, date, control_point, direction, hk_residents, mainland_visitors, other_visitors, total
+         FROM immigration`
+      )
+      .all();
+
+    const data = result.results
+      .map((row) => ({
         id: row.id,
         date: row.date,
         control_point_id: encodeControlPoint(row.control_point),
@@ -46,16 +44,13 @@ export async function onRequest(context) {
         mainland_visitors: row.mainland_visitors,
         other_visitors: row.other_visitors,
         total: row.total,
-      });
-    }
-  } catch (err) {
-    return new Response(null, { status: 500, statusText: "D1 query failed: " + err.toString() });
-  }
+      }))
+      .filter((row) => row.control_point_id !== -1);
 
-	return new Response(JSON.stringify(data), {
-	  headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": origin,
-	  }});
+    return Response.json(data, {
+      headers: { "Access-Control-Allow-Origin": "*" },
+    });
+  } catch (err) {
+    return new Response(null, { status: 500, statusText: "D1 query failed: " + err });
+  }
 }
-  
