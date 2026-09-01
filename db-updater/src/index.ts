@@ -1,110 +1,128 @@
 /**
- * Welcome to Cloudflare Workers!
- *
- * This is a template for a Scheduled Worker: a Worker that can run on a
- * configurable interval:
- * https://developers.cloudflare.com/workers/platform/triggers/cron-triggers/
- *
- * - Run `npm run dev` in your terminal to start a development server
- * - Run `curl "http://localhost:8787/__scheduled?cron=*+*+*+*+*"` to see your Worker in action
- * - Run `npm run deploy` to publish your Worker
- *
- * Bind resources to your Worker in `wrangler.jsonc`. After adding bindings, a type definition for the
- * `Env` object can be regenerated with `npm run cf-typegen`.
- *
- * Learn more at https://developers.cloudflare.com/workers/
+ * Scheduled Worker that downloads the latest daily passenger-traffic CSV from
+ * the Hong Kong Immigration Department and upserts the most recent rows into D1.
  */
+
+const CSV_URL =
+  'https://www.immd.gov.hk/opendata/eng/transport/immigration_clearance/statistics_on_daily_passenger_traffic.csv';
+
+// CSV columns: Date, Control Point, Arrival / Departure, Hong Kong Residents,
+// Mainland Visitors, Other Visitors, Total
+const CSV_COLUMN_COUNT = 7;
+
+// Only backfill a bounded number of recent rows per run. Each day adds roughly
+// (control points) x (2 directions) records, so 630 rows cover a few weeks of
+// catch-up after a missed run while staying well under D1's limits.
+const MAX_ROWS_PER_RUN = 630;
+
+type ImmigrationRow = [string, string, string, number, number, number, number];
+
+interface DbRow {
+  id: number;
+  date: string;
+  control_point: string;
+  direction: string;
+  hk_residents: number;
+  mainland_visitors: number;
+  other_visitors: number;
+  total: number;
+}
+
+// "09-07-2025" -> "2025-07-09"
+function parseDate(ddMmYyyy: string): string {
+  const [day, month, year] = ddMmYyyy.split('-');
+  return `${year}-${month}-${day}`;
+}
+
+function parseNumber(value: string): number {
+  const parsed = Number.parseInt(value.replace(/,/g, ''), 10);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function parseLine(line: string): ImmigrationRow | null {
+  const fields = line.split(',');
+  if (fields.length < CSV_COLUMN_COUNT) {
+    console.warn(`Skipping malformed CSV row: ${line}`);
+    return null;
+  }
+
+  const controlPoint =
+    fields[1] === 'Macau Ferry Terminal' ? 'Macao Ferry Terminal' : fields[1];
+
+  return [
+    parseDate(fields[0]),
+    controlPoint,
+    fields[2],
+    parseNumber(fields[3]),
+    parseNumber(fields[4]),
+    parseNumber(fields[5]),
+    parseNumber(fields[6]),
+  ];
+}
+
 export default {
-	async fetch(req, env: Env) {
-		// This URL seems invalid since July 7 2025
-		// let resp = await fetch('https://res.data.gov.hk/api/get-download-file?name=https%3A%2F%2Fwww.immd.gov.hk%2Fopendata%2Feng%2Ftransport%2Fimmigration_clearance%2Fstatistics_on_daily_passenger_traffic.csv');
-		let resp = await fetch('https://www.immd.gov.hk/opendata/eng/transport/immigration_clearance/statistics_on_daily_passenger_traffic.csv');
-		if (!resp.ok) {
-			console.error(`Failed to download: ${resp.status}`);
-			return new Response("hk immi department website API returns " + resp.status, { status: 500 });
-		}
+  async fetch(_request: Request, env: Env): Promise<Response> {
+    const response = await fetch(CSV_URL);
+    const csvText = response.ok ? await response.text() : '';
+    const lines = csvText.split('\n');
 
-		const csvText = await resp.text();
-		const lines = csvText.split("\n");
-		let result: Record<string, any> | null;
-		try {		
-			result = await env.hk_immi_db.prepare(
-				`SELECT id, date, control_point, direction, hk_residents, mainland_visitors, other_visitors, total FROM immigration ORDER BY date DESC, control_point, direction LIMIT 100`
-			).all();
-		} catch (err) {
-			return new Response("D1 query failed: " + err, { status: 500 });
-	  	}
-  
-		const data = {
-			"immi_api_data.length": lines.length,
-			"immi_api_data.last_line": lines[lines.length - 2],
-			"db_recent_100_records": result
-		}
-		return new Response(JSON.stringify(data), {
-			headers: {
-				"Content-Type": "application/json",
-				"Access-Control-Allow-Origin": origin,
-			}});
-		},
+    let recent: { results: DbRow[] };
+    try {
+      recent = await env.hk_immi_db
+        .prepare(
+          `SELECT id, date, control_point, direction, hk_residents, mainland_visitors, other_visitors, total
+           FROM immigration ORDER BY date DESC, control_point, direction LIMIT 100`
+        )
+        .all<DbRow>();
+    } catch (err) {
+      return new Response('D1 query failed: ' + err, { status: 500 });
+    }
 
-	async scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
-		// This URL seems invalid since July 7 2025
-		// let resp = await fetch('https://res.data.gov.hk/api/get-download-file?name=https%3A%2F%2Fwww.immd.gov.hk%2Fopendata%2Feng%2Ftransport%2Fimmigration_clearance%2Fstatistics_on_daily_passenger_traffic.csv');
-		let resp = await fetch('https://www.immd.gov.hk/opendata/eng/transport/immigration_clearance/statistics_on_daily_passenger_traffic.csv');
-		if (!resp.ok) {
-			console.error(`Failed to download: ${resp.status}`);
-			return;
-		}
-		let lines: string[] = [];
-	    try {
-			const csvText = await resp.text();
-			lines = csvText.split("\n").slice(1); // Skip line 1
-			console.log("total length:", lines.length)
-		} catch (err) {
-			console.error("Process CSV file error: ", err);
-		}
+    return Response.json(
+      {
+        'immi_api_data.length': lines.length,
+        'immi_api_data.last_line': lines[lines.length - 2] ?? '',
+        db_recent_100_records: recent.results,
+      },
+      { headers: { 'Access-Control-Allow-Origin': '*' } }
+    );
+  },
 
-		let dataRows: any[] = [];
-		for (let lineNumber = 2; lineNumber <= lines.length + 1; lineNumber++) {
-			const line = lines[lineNumber - 2].trim();
-			if (!line) continue;
-			const record = line.split(",");
-			if (record.length < 7) {
-				console.warn(`${lineNumber} format error, ignore... ${record}`);
-				continue;
-			}
-			const dateParts = record[0].split("-");
-			const date = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; // 09-07-2025 -> 2025-07-09
-			const control_point = record[1] === 'Macau Ferry Terminal' ? 'Macao Ferry Terminal' : record[1];
-			const direction = record[2];
-			const hk = parseInt(record[3].replace(/,/g, "")) || 0;
-			const ml = parseInt(record[4].replace(/,/g, "")) || 0;
-			const other = parseInt(record[5].replace(/,/g, "")) || 0;
-			const total = parseInt(record[6].replace(/,/g, "")) || 0;
-			dataRows.push([date, control_point, direction, hk, ml, other, total]);
-		}
+  async scheduled(
+    _controller: ScheduledController,
+    env: Env,
+    _ctx: ExecutionContext
+  ): Promise<void> {
+    const response = await fetch(CSV_URL);
+    if (!response.ok) {
+      console.error(`Failed to download CSV: ${response.status}`);
+      return;
+    }
 
-		// Only insert the last 630 records because the limit
-		// on subrequest is 50 (https://developers.cloudflare.com/workers/platform/limits/)
-		// and on bound parameters is 100 (https://developers.cloudflare.com/d1/platform/limits/)
-		dataRows = dataRows.slice(dataRows.length - 630)
+    const csvText = await response.text();
+    const lines = csvText.split('\n').slice(1); // drop header
+    const recent = lines.slice(-MAX_ROWS_PER_RUN);
 
-		// UNIQUE INDEX: <date, control_point, direction>;
-		const batchSize = 13; // should ensure batchSize * 7 <= 100
-		for (let i = 0; i < dataRows.length; i += batchSize) {
-			const batch = dataRows.slice(i, i + batchSize);
-			const placeholders = batch.map(() => `(?, ?, ?, ?, ?, ?, ?)`).join(", ");
-			const values = batch.flat();
-			const sql = `INSERT OR IGNORE INTO immigration 
-						(date, control_point, direction, hk_residents, mainland_visitors, other_visitors, total)
-						VALUES ${placeholders}`;
-			try {
-				await env.hk_immi_db.prepare(sql).bind(...values).run();
-			} catch (e) {
-				console.error(`Failed to insert ${i}: ${batch}`, e);
-				continue;
-			}
-		}
-		console.log("Update DB OK");
-	},
+    const rows = recent
+      .map((line) => parseLine(line.trim()))
+      .filter((row): row is ImmigrationRow => row !== null);
+
+    // D1 allows at most 100 bound parameters per statement, so 13 rows x 7
+    // columns = 91 parameters is safely below the limit.
+    const batchSize = 13;
+    for (let i = 0; i < rows.length; i += batchSize) {
+      const batch = rows.slice(i, i + batchSize);
+      const placeholders = batch.map(() => '(?, ?, ?, ?, ?, ?, ?)').join(', ');
+      const sql = `INSERT OR IGNORE INTO immigration
+        (date, control_point, direction, hk_residents, mainland_visitors, other_visitors, total)
+        VALUES ${placeholders}`;
+      try {
+        await env.hk_immi_db.prepare(sql).bind(...batch.flat()).run();
+      } catch (err) {
+        console.error(`Failed to insert batch starting at row ${i}:`, err);
+      }
+    }
+
+    console.log(`Update DB OK: processed ${rows.length} rows`);
+  },
 } satisfies ExportedHandler<Env>;
