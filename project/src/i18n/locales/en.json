@@ -3,7 +3,7 @@
 	"direction": "Direction",
 	"arrival": "Arrival",
 	"departure": "Departure",
-	"mode": "Aggregate Metric",
+	"mode": "Group By",
 	"controlPoints": "Control Points",
 	"controlPointsMap": "Control Points Map",
 	"selectAll": "Select All",
@@ -16,7 +16,7 @@
 	"all": "All",
 	"avg": "Show 7-day Average",
 	"groupMetric": {
-		"all": "Sum",
+		"all": "No Grouping",
 		"byDir": "Directions",
 		"byCat": "Categories",
 		"byCp": "Control Points"
@@ -33,7 +33,7 @@
 	  "last60Days": "Last 60 Days",
 	  "last90Days": "Last 90 Days",
 	  "last6Months": "Last 6 Months",
-	  "lastYear": "Last Year",
+	  "lastYear": "Last 12 Months",
 	  "yearToDate": "Year to Date",
 	  "allTime": "All Time"
 	},

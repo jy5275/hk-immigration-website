@@ -14,9 +14,9 @@
 	"numberOfPassengers": "旅客人数",
 	"date": "日期",
 	"all": "全部",
-	"avg": "展示七日平均值",
+	"avg": "显示7日平均值",
 	"groupMetric": {
-		"all": "不分組",
+		"all": "不分组",
 		"byDir": "按方向",
 		"byCat": "按旅客类别",
 		"byCp": "按管制站"
@@ -35,7 +35,7 @@
 	  "last6Months": "最近6个月",
 	  "lastYear": "最近一年",
 	  "yearToDate": "年初至今",
-	  "allTime": "全部时间"
+	  "allTime": "全部时段"
 	},
 	"footer": {
 	  "dataSource": "数据来源",
