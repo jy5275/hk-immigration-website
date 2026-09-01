@@ -1,0 +1,62 @@
+{
+	"title": "香港出入境統計看板",
+	"direction": "方向",
+	"arrival": "入境",
+	"departure": "出境",
+	"mode": "分類",
+	"controlPoints": "出入境管理所",
+	"controlPointsMap": "出入境管理所地図",
+	"selectAll": "全選択",
+	"dataSummary": "統計概要",
+	"totalPassengers": "総旅客数",
+	"topControlPoint": "最繁忙管理所",
+	"passengerCategories": "旅客区分",
+	"numberOfPassengers": "旅客数",
+	"date": "日付",
+	"all": "全部",
+	"avg": "7日移動平均表示",
+	"groupMetric": {
+		"all": "分類なし",
+		"byDir": "方向別",
+		"byCat": "区分別",
+		"byCp": "管理所別"
+	},
+	"category": {
+		"hkResidents": "香港居民",
+		"mainlandVisitors": "中国の訪問者",
+		"otherVisitors": "その他の訪問者"
+	},
+	"dateRange": {
+	  "from": "開始",
+	  "to": "終了",
+	  "last30Days": "直近30日",
+	  "last60Days": "直近60日",
+	  "last90Days": "直近90日",
+	  "last6Months": "直近6か月",
+	  "lastYear": "直近12か月",
+	  "yearToDate": "年初来",
+	  "allTime": "全期間"
+	},
+	"footer": {
+	  "dataSource": "データソース",
+	  "sourceCode": "ソースコード"
+	},
+	"controlPointNames": {
+		"Lo Wu": "羅湖",
+		"Lok Ma Chau Spur Line": "落馬洲支線",
+		"Airport": "空港",
+		"Shenzhen Bay": "深圳湾",
+		"Hong Kong-Zhuhai-Macao Bridge": "港珠澳大橋",
+		"Express Rail Link West Kowloon": "高速鉄道西九龍",
+		"Heung Yuen Wai": "香園圍",
+		"Lok Ma Chau": "落馬洲",
+		"Macao Ferry Terminal": "マカオフェリーターミナル",
+		"Man Kam To": "文錦渡",
+		"China Ferry Terminal": "中国客運碼頭",
+		"Kai Tak Cruise Terminal": "啓徳クルーズターミナル",
+		"Harbour Control": "港口管制",
+		"Sha Tau Kok": "沙頭角",
+		"Hung Hom": "紅磡",
+		"Tuen Mun Ferry Terminal": "屯門フェリーターミナル"
+	}
+}

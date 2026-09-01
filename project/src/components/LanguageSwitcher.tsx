@@ -8,7 +8,8 @@ const LanguageSwitcher: React.FC = () => {
   const languages = [
     { code: 'en', name: 'English' },
     { code: 'zh-HK', name: '繁體中文' },
-    { code: 'zh-CN', name: '简体中文' }
+    { code: 'zh-CN', name: '简体中文' },
+    { code: 'ja', name: '日本語' }
   ];
 
   return (
