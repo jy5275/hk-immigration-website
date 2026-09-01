@@ -1,4 +1,4 @@
-import { ImmigrationData } from '../types';
+import type { ImmigrationData } from '../types';
 
 function generateMockImmigrationData(): ImmigrationData[] {
 	const controlPoints = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
@@ -32,20 +32,18 @@ function randomInt(min:number, max:number) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// Mock data - in a real app, this would be replaced with actual database queries
+// Fetch data from the Pages Function; on failure fall back to mock data so the
+// UI remains usable during local development without a D1 binding.
 export const fetchImmigrationData = async (): Promise<ImmigrationData[]> => {
   try {
-    // In a production app, you would use sql.js-httpvfs or better-sqlite3 to query the database
-    // For this example, we're using mock data
-    const response = await fetch("/api/immigration-data");
+    const response = await fetch('/api/immigration-data');
     if (!response.ok) {
       throw new Error('Failed to fetch immigration data ' + response.statusText);
     }
-    
+
     return await response.json();
   } catch (error) {
     console.error('Error fetching immigration data:', error, ', generating mock data...');
-    // Return mock data for demo purposes
     return generateMockImmigrationData();
   }
 };
