@@ -29,12 +29,3 @@ export interface FilterOptions {
   date_range: DateRange;
   use7DaysAvg: boolean;
 }
-
-export interface AggregatedData {
-  [date: string]: {
-    hk_residents: number;
-    mainland_visitors: number;
-    other_visitors: number;
-    total: number;
-  };
-}
