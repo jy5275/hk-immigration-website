@@ -23,8 +23,8 @@ export type ControlPointId = number; // 0~15
 export type DirectionId = 0 | 1;
 export type GroupMetricId = 0 | 1 | 2 | 3; // 0:all, 1:directions, 2:categories, 3:control_points
 
-export function encodeControlPoint(name: string): ControlPointId {
-  return allControlPoints.indexOf(name as any);
+export function encodeControlPoint(name: (typeof allControlPoints)[number]): ControlPointId {
+  return allControlPoints.indexOf(name);
 }
 
 export function decodeControlPoint(id: ControlPointId): string {
@@ -45,8 +45,8 @@ export const allCategories = [
 	"category.otherVisitors",
 ] as const;
 
-export function encodeCategory(cat: string): number {
-	return allCategories.indexOf(cat as any);
+export function encodeCategory(cat: (typeof allCategories)[number]): number {
+  return allCategories.indexOf(cat);
 }
 
 export function decodeCategory(cat: number): string {
